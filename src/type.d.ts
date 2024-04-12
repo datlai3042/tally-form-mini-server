@@ -15,7 +15,7 @@ export interface CustomRequest<Body = any> extends Request {
 interface ErrorServer extends Error {
       code?: number
       detail?: string
-      error: any
+      metadata: any
 }
 
 export type ResSucess = {
@@ -27,7 +27,7 @@ export type ResSucess = {
 export type ResError = {
       code?: number
       message?: string
-      detail: string
+      metadata: string | any
 }
 
 export type Key = {

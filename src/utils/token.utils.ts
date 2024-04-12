@@ -7,9 +7,9 @@ import { UserDocument } from '~/model/user.model'
 import { CustomRequest, Key, PayloadJWT, Token } from '~/type'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Key): Token => {
-      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '3d' })
+      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '20s' })
       const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })
-      if (!access_token || !refresh_token) throw new ResponseError({ detail: 'Lỗi do tạo key' })
+      if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
 }
 
@@ -44,9 +44,16 @@ export type ParamVerifyAT = {
 export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }: ParamVerifyAT) => {
       console.log({ token, key })
       jwt.verify(token, key, (error, decode) => {
-            if (error) return next(new AuthFailedError({ detail: 'Token không đúng' }))
+            if (error) {
+                  if (req.originalUrl === '/v1/api/auth/logout') {
+                        req.user = user
+                        return next()
+                  }
+                  return next(new AuthFailedError({ metadata: 'Token không đúng' }))
+            }
+
             const payload = decode as PayloadJWT
-            if (payload._id !== client_id) return next(new BadRequestError({ detail: 'Token không thuộc về user' }))
+            if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore
       })
@@ -59,10 +66,10 @@ export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req,
 
       jwt.verify(token, key, (error, decode) => {
             if (error) {
-                  return next(new ForbiddenError({ detail: 'Token không đúng123' }))
+                  return next(new ForbiddenError({ metadata: 'Token không đúng123' }))
             }
             const payload = decode as PayloadJWT
-            if (payload._id !== client_id) return next(new BadRequestError({ detail: 'Token không thuộc về user' }))
+            if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore
             req.refresh_token = token

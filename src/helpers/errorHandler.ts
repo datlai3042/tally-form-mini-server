@@ -8,8 +8,8 @@ const errorHandler = <ErrorCustom extends ErrorServer>(error: ErrorCustom, req: 
 
       const code = error.code ? error.code : statusCode.INTERNAL_SERVER_ERROR
       const message = error.message ? error.message : reasonCode.INTERNAL_SERVER_ERROR
-      const detail = error.detail ? error.detail : null
-      return res.status(code).send({ code, message, detail })
+      const metadata = error.metadata ? error.metadata : null
+      return res.status(code).send({ code, message, metadata })
 }
 
 export default errorHandler

@@ -18,19 +18,19 @@ export const HEADER: IHEADER = {
 }
 
 const authentication = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-      console.log({ url: req.originalUrl })
-
       const client_id = req.headers[HEADER.CLIENT_ID] as string
-      if (!client_id) throw new BadRequestError({ detail: 'CLIENT::Không truyền user_id' })
+      console.log({ client_id, req })
+      if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
       const access_token = req.headers[HEADER.AUTHORIZATION] as string
-      if (!access_token) throw new NotFoundError({ detail: 'Không tìm thấy access_token' })
+      if (!access_token) throw new NotFoundError({ metadata: 'Không tìm thấy access_token' })
+      console.log({ url: req.originalUrl, access_token })
 
       const user = await userModel.findOne({ _id: new Types.ObjectId(client_id) })
-      if (!user) throw new NotFoundError({ detail: 'Không tìm thấy user' })
+      if (!user) throw new NotFoundError({ metadata: 'Không tìm thấy user' })
 
       const keyStore = await keyManagerModel.findOne({ user_id: user._id })
-      if (!keyStore) throw new NotFoundError({ detail: 'Không tìm thấy key của user' })
+      if (!keyStore) throw new NotFoundError({ metadata: 'Không tìm thấy key của user' })
 
       const force = req.body.force
       if (force) {
@@ -41,7 +41,7 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
       //CASE: Auth refresh_token
       if (req.originalUrl === '/v1/api/auth/refresh-token') {
             const refresh_token = req.cookies['refresh_token']
-            if (!refresh_token) return next(new AuthFailedError({ detail: 'Không tìm thấy refresh_token' }))
+            if (!refresh_token) return next(new AuthFailedError({ metadata: 'Không tìm thấy refresh_token' }))
             return verifyRefreshToken({ client_id, user, keyStore, token: refresh_token, key: keyStore.private_key, req, res, next })
       }
 

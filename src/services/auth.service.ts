@@ -19,27 +19,27 @@ class AuthService {
       static async register(req: CustomRequest<AuthParam>, res: Response, next: NextFunction) {
             const { email, password } = req.body
 
-            if (!email || !password) throw new BadRequestError({ detail: 'Missing Field' })
+            if (!email || !password) throw new BadRequestError({ metadata: 'Missing Field' })
 
             const foundEmail = await userModel.findOne({ user_email: email })
-            if (foundEmail) throw new BadRequestError({ detail: 'Email đã tồn tại' })
+            if (foundEmail) throw new BadRequestError({ metadata: 'Email đã tồn tại' })
 
             const hashPassword = await hassPassword(password)
 
             const createUser = await userModel.create({ user_email: email, user_password: hashPassword })
-            if (!createUser) throw new ResponseError({ detail: 'Không thể đăng kí user do lỗi' })
+            if (!createUser) throw new ResponseError({ metadata: 'Không thể đăng kí user do lỗi' })
 
             const { private_key, public_key } = generatePaidKey()
-            if (!public_key || !private_key) throw new ResponseError({ detail: 'Server không thể tạo key sercet' })
+            if (!public_key || !private_key) throw new ResponseError({ metadata: 'Server không thể tạo key sercet' })
 
             const payload = createPayload(createUser)
 
             const token = generatePaidToken<PayloadJWT>(payload, { public_key, private_key })
 
-            const dataKey = fillDataKeyModel(createUser, public_key, private_key, token.refresh_token)
+            const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = fillDataKeyModel(createUser, public_key, private_key, token.refresh_token)
 
-            const createKey = await keyManagerModel.create(dataKey)
-            if (!createKey) throw new ResponseError({ detail: 'Server không thể tạo model key' })
+            const createKey = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
+            if (!createKey) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
 
             setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
 
@@ -50,10 +50,10 @@ class AuthService {
             const { email, password } = req.body
 
             const foundUser = await userModel.findOne({ user_email: email })
-            if (!foundUser) throw new NotFoundError({ detail: 'Không tìm thấy user' })
+            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy user' })
 
             const checkPassword = compare(password, foundUser?.user_password)
-            if (!checkPassword) throw new AuthFailedError({ detail: 'Something wrongs...' })
+            if (!checkPassword) throw new AuthFailedError({ metadata: 'Something wrongs...' })
 
             const access_token_old = req.headers[HEADER.AUTHORIZATION]
             if (access_token_old) {
@@ -61,14 +61,14 @@ class AuthService {
             }
 
             const { public_key, private_key } = generatePaidKey()
-            if (!public_key || !private_key) throw new ResponseError({ detail: 'Server không thể tạo key sercet' })
+            if (!public_key || !private_key) throw new ResponseError({ metadata: 'Server không thể tạo key sercet' })
 
             const payload = createPayload(foundUser)
             const { access_token, refresh_token } = generatePaidToken(payload, { public_key, private_key })
 
             const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = fillDataKeyModel(foundUser, public_key, private_key, refresh_token)
             const keyStore = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
-            if (!keyStore) throw new ResponseError({ detail: 'Server không thể tạo model key' })
+            if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
             setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
 
             return { user: omit(foundUser.toObject(), ['user_password']), token: { access_token: access_token, refresh_token: refresh_token } }
@@ -90,7 +90,7 @@ class AuthService {
             const user = req.user as UserDocument
             console.log({ refresh_token })
             const { public_key, private_key } = generatePaidKey()
-            if (!public_key || !private_key) throw new ResponseError({ detail: 'Server không thể tạo key sercet' })
+            if (!public_key || !private_key) throw new ResponseError({ metadata: 'Server không thể tạo key sercet' })
 
             const payload = createPayload(user)
 
