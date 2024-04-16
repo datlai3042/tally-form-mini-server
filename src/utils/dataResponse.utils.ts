@@ -19,7 +19,3 @@ export const setCookieResponse = (res: Response, expires: number = oneWeek, name
       res.cookie(name, value, { ...options, expires: expiryDate })
       return
 }
-// {
-//             expires: expiryDate,
-//             httpOnly: true
-//       }

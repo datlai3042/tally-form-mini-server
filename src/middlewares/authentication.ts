@@ -19,12 +19,10 @@ export const HEADER: IHEADER = {
 
 const authentication = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
       const client_id = req.headers[HEADER.CLIENT_ID] as string
-      console.log({ client_id, req })
       if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
       const access_token = req.headers[HEADER.AUTHORIZATION] as string
       if (!access_token) throw new NotFoundError({ metadata: 'Không tìm thấy access_token' })
-      console.log({ url: req.originalUrl, access_token })
 
       const user = await userModel.findOne({ _id: new Types.ObjectId(client_id) })
       if (!user) throw new NotFoundError({ metadata: 'Không tìm thấy user' })

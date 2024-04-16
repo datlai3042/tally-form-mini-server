@@ -7,7 +7,7 @@ import { UserDocument } from '~/model/user.model'
 import { CustomRequest, Key, PayloadJWT, Token } from '~/type'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Key): Token => {
-      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '20s' })
+      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '10s' })
       const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })
       if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
@@ -61,7 +61,6 @@ export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, 
 }
 
 export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, next }: ParamVerifyAT) => {
-      console.log({ router: req.body, token, key })
       const force = req.body.force
 
       jwt.verify(token, key, (error, decode) => {

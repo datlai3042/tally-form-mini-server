@@ -88,10 +88,8 @@ class AuthService {
       static async refresh_token(req: CustomRequest, res: Response, next: NextFunction) {
             const { refresh_token } = req
             const user = req.user as UserDocument
-            console.log({ refresh_token })
             const { public_key, private_key } = generatePaidKey()
             if (!public_key || !private_key) throw new ResponseError({ metadata: 'Server không thể tạo key sercet' })
-
             const payload = createPayload(user)
 
             const { access_token, refresh_token: new_refresh_token } = generatePaidToken(payload, { public_key, private_key })
