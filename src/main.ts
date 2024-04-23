@@ -1,6 +1,7 @@
 import express, { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 import { ErrorServer } from './type'
 
+import { config } from 'dotenv'
 import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -12,6 +13,7 @@ import MongoConnect from './db/mongo.connect'
 import errorHandler from './helpers/errorHandler'
 import bodyParser from 'body-parser'
 
+config()
 const app = express()
 
 MongoConnect.Connect()
@@ -26,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(
       cors({
-            origin: 'http://localhost:3000', // Cho phép truy cập từ origin này
+            origin: process.env.CLIENT_URL, // Cho phép truy cập từ origin này
             methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
             allowedHeaders: ['Content-Type', 'Authorization'], // Chỉ
             credentials: true
@@ -39,6 +41,6 @@ app.use((error: ErrorServer, req: Request, res: Response, next: NextFunction) =>
       return errorHandler(error, req, res, next)
 })
 
-app.listen(8000, () => {
+app.listen(process.env.PORT, () => {
       console.log('comming')
 })
