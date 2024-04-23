@@ -26,6 +26,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(
       cors({
+            origin: 'http://localhost:3000', // Cho phép truy cập từ origin này
+            methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
+            allowedHeaders: ['Content-Type', 'Authorization'], // Chỉ
             credentials: true
       })
 )

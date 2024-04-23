@@ -18,10 +18,10 @@ export const HEADER: IHEADER = {
 }
 
 const authentication = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-      const client_id = req.headers[HEADER.CLIENT_ID] as string
+      const client_id = req.cookies['client_id']
       if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
-      const access_token = req.headers[HEADER.AUTHORIZATION] as string
+      const access_token = req.cookies['access_token']
       if (!access_token) throw new NotFoundError({ metadata: 'Không tìm thấy access_token' })
 
       const user = await userModel.findOne({ _id: new Types.ObjectId(client_id) })
@@ -31,7 +31,7 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
       if (!keyStore) throw new NotFoundError({ metadata: 'Không tìm thấy key của user' })
 
       const force = req.body.force
-      if (force) {
+      if (force && req.originalUrl === '/v1/api/auth/logout') {
             req.user = user
             return next()
       }
@@ -45,8 +45,7 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
 
       //CASE: Auth access_token
       if (access_token) {
-            const token = access_token.split(' ')[1]
-            return verifyAccessToken({ client_id, user, keyStore, token, key: keyStore.public_key, req, res, next })
+            return verifyAccessToken({ client_id, user, keyStore, token: access_token, key: keyStore.public_key, req, res, next })
       }
 })
 

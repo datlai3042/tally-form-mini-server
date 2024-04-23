@@ -18,6 +18,8 @@ type UserAvatar = Clondinary & {
 export type UserSchema = {
       user_email: string
       user_password: string
+      user_first_name: string
+      user_last_name: string
       user_birthday: Date
       user_gender: Gender
       user_roles: UserRole
@@ -32,6 +34,8 @@ const userSchema = new Schema<UserDocument>(
       {
             user_email: { type: String, required: true },
             user_password: { type: String, required: true },
+            user_first_name: { type: String, required: true },
+            user_last_name: { type: String, required: true },
             user_birthday: { type: Date },
             user_gender: { type: String, enum: ['MALE', 'FEMALE', 'OTHER'], default: 'MALE', required: true },
             user_roles: { type: String, enum: ['USER', 'ADMIN', 'GUEST'], default: 'USER', required: true },
