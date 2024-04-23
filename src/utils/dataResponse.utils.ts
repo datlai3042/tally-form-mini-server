@@ -18,6 +18,6 @@ export const expriresAT = 3 * 1000 // 7 ngày tính bằng miligiây
 export const setCookieResponse = (res: Response, expires: number = oneWeek, name: string, value: string, options: CookieOptions) => {
       const expiryDate = new Date(Date.now() + oneWeek)
       console.log('set cookie')
-      res.cookie(name, value, { ...options, expires: expiryDate, sameSite: 'none' })
+      res.cookie(name, value, { ...options, expires: expiryDate, sameSite: 'none', path: '/', secure: true })
       return expiryDate
 }
