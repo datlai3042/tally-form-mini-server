@@ -67,9 +67,9 @@ class AuthService {
         const keyStore = await keyManager_model_1.default.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption);
         if (!keyStore)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token, { httpOnly: true });
-        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', foundUser._id.toString());
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token);
+        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token);
         return {
             user: (0, dataResponse_utils_1.omit)(foundUser.toObject(), ['user_password']),
             token: { access_token, refresh_token },

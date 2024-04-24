@@ -15,7 +15,7 @@ export const omit = <T extends object, K extends keyof T>(object: T, fields: K[]
 export const oneWeek = 7 * 24 * 60 * 60 * 1000 // 7 ngày tính bằng miligiây
 export const expriresAT = 3 * 1000 // 7 ngày tính bằng miligiây
 
-export const setCookieResponse = (res: Response, expires: number = oneWeek, name: string, value: string, options: CookieOptions) => {
+export const setCookieResponse = (res: Response, expires: number = oneWeek, name: string, value: string, options?: CookieOptions) => {
       const expiryDate = new Date(Date.now() + oneWeek)
       res.cookie(name, value, { ...options, expires: expiryDate, sameSite: 'none', path: '/', secure: true })
       return expiryDate
