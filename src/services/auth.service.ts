@@ -81,10 +81,10 @@ class AuthService {
             const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = fillDataKeyModel(foundUser, public_key, private_key, refresh_token)
             const keyStore = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
-            setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString())
+            setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true })
 
-            setCookieResponse(res, oneWeek, 'refresh_token', refresh_token)
-            const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token)
+            setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
+            const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(foundUser.toObject(), ['user_password']),
                   token: { access_token, refresh_token },
