@@ -18,11 +18,11 @@ const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) =
     const client_id = req.cookies['client_id'];
     if (!client_id)
         throw new response_error_1.BadRequestError({ metadata: 'CLIENT::Không truyền user_id' });
-    console.log({ client_id });
+    console.log({ client_id: JSON.stringify(client_id) });
     const access_token = req.cookies['access_token'];
     if (!access_token)
         throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy access_token' });
-    console.log({ access_token });
+    console.log({ access_token: JSON.stringify(access_token) });
     const user = await user_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(client_id) });
     if (!user)
         throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy user' });

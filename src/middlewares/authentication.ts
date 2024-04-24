@@ -21,10 +21,10 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
       const client_id = req.cookies['client_id'] as string
       if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
-      console.log({ client_id })
+      console.log({ client_id: JSON.stringify(client_id) })
       const access_token = req.cookies['access_token']
       if (!access_token) throw new NotFoundError({ metadata: 'Không tìm thấy access_token' })
-      console.log({ access_token })
+      console.log({ access_token: JSON.stringify(access_token) })
 
       const user = await userModel.findOne({ _id: new Types.ObjectId(client_id) })
       if (!user) throw new NotFoundError({ metadata: 'Không tìm thấy user' })
