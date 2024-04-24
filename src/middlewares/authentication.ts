@@ -18,6 +18,8 @@ export const HEADER: IHEADER = {
 }
 
 const authentication = asyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+      console.log({ cookies: JSON.parse(JSON.stringify(req.cookies)) })
+
       const client_id = req.cookies['client_id'] as string
       if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
