@@ -15,7 +15,7 @@ exports.HEADER = {
     AUTHORIZATION: 'authorization'
 };
 const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
-    console.log({ cookies: JSON.parse(JSON.stringify(req.cookies)) });
+    console.log({ cookies: JSON.parse(JSON.stringify(req.cookies)), req: JSON.stringify(req) });
     const client_id = req.cookies['client_id'];
     if (!client_id)
         throw new response_error_1.BadRequestError({ metadata: 'CLIENT::Không truyền user_id' });
