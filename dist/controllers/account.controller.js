@@ -10,3 +10,4 @@ class AccountController {
         return new response_success_1.OK({ metadata: await account_service_1.default.me(req, res, next) }).send(res);
     }
 }
+exports.default = AccountController;
