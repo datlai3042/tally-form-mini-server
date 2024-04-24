@@ -32,7 +32,6 @@ const createPayload = (user) => {
 };
 exports.createPayload = createPayload;
 const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
-    console.log({ token, key });
     jsonwebtoken_1.default.verify(token, key, (error, decode) => {
         if (error) {
             if (req.originalUrl === '/v1/api/auth/logout') {

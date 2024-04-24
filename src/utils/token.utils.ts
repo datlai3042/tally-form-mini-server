@@ -42,7 +42,6 @@ export type ParamVerifyAT = {
       next: NextFunction
 }
 export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }: ParamVerifyAT) => {
-      console.log({ token, key })
       jwt.verify(token, key, (error, decode) => {
             if (error) {
                   if (req.originalUrl === '/v1/api/auth/logout') {
