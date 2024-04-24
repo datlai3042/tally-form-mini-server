@@ -24,7 +24,7 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
       if (!client_id) throw new BadRequestError({ metadata: 'CLIENT::Không truyền user_id' })
 
       console.log({ client_id: JSON.stringify(client_id) })
-      const access_token = req.cookies['access_token']
+      const access_token = req.cookies['access_token'] as string
       if (!access_token) throw new NotFoundError({ metadata: 'Không tìm thấy access_token' })
       console.log({ access_token: JSON.stringify(access_token) })
 
@@ -42,7 +42,7 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
 
       //CASE: Auth refresh_token
       if (req.originalUrl === '/v1/api/auth/refresh-token') {
-            const refresh_token = req.cookies['refresh_token']
+            const refresh_token = req.cookies['refresh_token'] as string
             if (!refresh_token) return next(new AuthFailedError({ metadata: 'Không tìm thấy refresh_token' }))
             return verifyRefreshToken({ client_id, user, keyStore, token: refresh_token, key: keyStore.private_key, req, res, next })
       }
