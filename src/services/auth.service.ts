@@ -120,14 +120,14 @@ class AuthService {
             const updateKeyModel = await keyManagerModel.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption)
 
             setCookieResponse(res, oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true })
-            setCookieResponse(res, oneWeek, 'client_id', user._id, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'client_id', user._id.toString(), { httpOnly: true })
 
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(user.toObject(), ['user_password']),
                   token: { access_token, refresh_token: new_refresh_token },
                   expireToken,
-                  client_id: user._id
+                  client_id: user._id.toString()
             }
       }
 }

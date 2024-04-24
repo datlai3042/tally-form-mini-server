@@ -100,13 +100,13 @@ class AuthService {
         const keyModelOption = { new: true, upsert: true };
         const updateKeyModel = await keyManager_model_1.default.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption);
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', user._id, { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', user._id.toString(), { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(user.toObject(), ['user_password']),
             token: { access_token, refresh_token: new_refresh_token },
             expireToken,
-            client_id: user._id
+            client_id: user._id.toString()
         };
     }
 }
