@@ -8,3 +8,5 @@ class AccountController {
             return new OK({ metadata: await AccountService.me(req, res, next) }).send(res)
       }
 }
+
+export default AccountController
