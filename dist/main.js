@@ -27,7 +27,7 @@ app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
     origin: process.env.CLIENT_URL, // Cho phép truy cập từ origin này
     methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'CodeVerifyToken'], // Chỉ
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
     credentials: true
 }));
 app.use('', routers_1.default);
