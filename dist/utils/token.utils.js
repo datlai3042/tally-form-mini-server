@@ -74,12 +74,12 @@ const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, n
     });
 };
 exports.verifyRefreshToken = verifyRefreshToken;
-const fillDataKeyModel = (user, public_key, private_key, refresh_token) => {
+const fillDataKeyModel = (user, public_key, private_key, refresh_token, code_verify_token) => {
     const modelKeyQuery = {
         user_id: user?._id
     };
     const modelKeyUpdate = {
-        $set: { public_key, private_key, refresh_token }
+        $set: { public_key, private_key, refresh_token, code_verify_token }
     };
     const modelKeyOption = { new: true, upsert: true };
     return { modelKeyQuery, modelKeyUpdate, modelKeyOption };

@@ -84,13 +84,13 @@ export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req,
       })
 }
 
-export const fillDataKeyModel = (user: UserDocument, public_key: string, private_key: string, refresh_token: string) => {
+export const fillDataKeyModel = (user: UserDocument, public_key: string, private_key: string, refresh_token: string, code_verify_token: string) => {
       const modelKeyQuery = {
             user_id: user?._id
       }
 
       const modelKeyUpdate = {
-            $set: { public_key, private_key, refresh_token }
+            $set: { public_key, private_key, refresh_token, code_verify_token }
       }
 
       const modelKeyOption = { new: true, upsert: true }

@@ -42,16 +42,22 @@ class AuthService {
             const token = generatePaidToken<PayloadJWT>(payload, { public_key, private_key })
             const code_verify_token = generateCodeVerifyToken()
 
-            const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = fillDataKeyModel(createUser, public_key, private_key, token.refresh_token)
+            const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = fillDataKeyModel(
+                  createUser,
+                  public_key,
+                  private_key,
+                  token.refresh_token,
+                  code_verify_token
+            )
 
             const createKey = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
             if (!createKey) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
 
-            setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true })
             setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
-
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', token.access_token, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
+
             return {
                   user: omit(createUser.toObject(), ['user_password']),
                   token: { access_token: token.access_token, refresh_token: token.refresh_token, code_verify_token },
@@ -81,8 +87,9 @@ class AuthService {
             const { access_token, refresh_token } = generatePaidToken(payload, { public_key, private_key })
             const code_verify_token = generateCodeVerifyToken()
 
-            const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = fillDataKeyModel(foundUser, public_key, private_key, refresh_token)
+            const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = fillDataKeyModel(foundUser, public_key, private_key, refresh_token, code_verify_token)
             const keyStore = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
+
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
             setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true })
             setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
@@ -120,7 +127,10 @@ class AuthService {
             const code_verify_token = generateCodeVerifyToken()
 
             const keyModelQuery = { user_id: user._id }
-            const keyModelUpdate = { $set: { refresh_token: new_refresh_token, private_key, public_key }, $addToSet: { refresh_token_used: refresh_token } }
+            const keyModelUpdate = {
+                  $set: { refresh_token: new_refresh_token, private_key, public_key, code_verify_token },
+                  $addToSet: { refresh_token_used: refresh_token }
+            }
             const keyModelOption = { new: true, upsert: true }
 
             const updateKeyModel = await keyManagerModel.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption)
