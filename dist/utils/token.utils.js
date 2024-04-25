@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fillDataKeyModel = exports.verifyRefreshToken = exports.verifyAccessToken = exports.createPayload = exports.generatePaidKey = exports.generatePaidToken = void 0;
+exports.fillDataKeyModel = exports.verifyRefreshToken = exports.verifyAccessToken = exports.createPayload = exports.generateCodeVerifyToken = exports.generatePaidKey = exports.generatePaidToken = void 0;
 const crypto_1 = require("crypto");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_error_1 = require("../Core/response.error");
@@ -21,6 +21,15 @@ const generatePaidKey = () => {
     return { public_key, private_key };
 };
 exports.generatePaidKey = generatePaidKey;
+/**
+ *
+ * @returns Tạo mã xác thực refresh_token dùng 1 lần
+ */
+const generateCodeVerifyToken = () => {
+    const code_verify_refresh_token = (0, crypto_1.randomBytes)(20).toString('hex');
+    return code_verify_refresh_token;
+};
+exports.generateCodeVerifyToken = generateCodeVerifyToken;
 const createPayload = (user) => {
     const { _id, user_email, user_roles } = user;
     const payload = {

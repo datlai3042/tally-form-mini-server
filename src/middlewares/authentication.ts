@@ -38,6 +38,10 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
 
       //CASE: Auth refresh_token
       if (req.originalUrl === '/v1/api/auth/refresh-token') {
+            const code_verify_token = req.headers['code_verify_token'] as string
+            if (code_verify_token.toLowerCase() !== keyStore.code_verify_token.toLowerCase()) {
+                  throw new NotFoundError({ metadata: 'Yêu cầu không hợp lệ' })
+            }
             const refresh_token = req.cookies['refresh_token'] as string
             if (!refresh_token) return next(new AuthFailedError({ metadata: 'Không tìm thấy refresh_token' }))
             return verifyRefreshToken({ client_id, user, keyStore, token: refresh_token, key: keyStore.private_key, req, res, next })

@@ -34,6 +34,10 @@ const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) =
     }
     //CASE: Auth refresh_token
     if (req.originalUrl === '/v1/api/auth/refresh-token') {
+        const code_verify_token = req.headers['code_verify_token'];
+        if (code_verify_token.toLowerCase() !== keyStore.code_verify_token.toLowerCase()) {
+            throw new response_error_1.NotFoundError({ metadata: 'Yêu cầu không hợp lệ' });
+        }
         const refresh_token = req.cookies['refresh_token'];
         if (!refresh_token)
             return next(new response_error_1.AuthFailedError({ metadata: 'Không tìm thấy refresh_token' }));

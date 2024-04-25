@@ -6,7 +6,7 @@ import userModel, { UserDocument } from '~/model/user.model'
 import { CustomRequest, PayloadJWT } from '~/type'
 import { compare, hassPassword } from '~/utils/bcrypt.utils'
 import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse.utils'
-import { createPayload, fillDataKeyModel, generatePaidKey, generatePaidToken } from '~/utils/token.utils'
+import { createPayload, fillDataKeyModel, generateCodeVerifyToken, generatePaidKey, generatePaidToken } from '~/utils/token.utils'
 
 type AuthParam = {
       email: string
@@ -40,6 +40,7 @@ class AuthService {
             const payload = createPayload(createUser)
 
             const token = generatePaidToken<PayloadJWT>(payload, { public_key, private_key })
+            const code_verify_token = generateCodeVerifyToken()
 
             const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = fillDataKeyModel(createUser, public_key, private_key, token.refresh_token)
 
@@ -48,11 +49,12 @@ class AuthService {
 
             setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', token.access_token, { httpOnly: true })
             return {
                   user: omit(createUser.toObject(), ['user_password']),
-                  token: { access_token: token.access_token, refresh_token: token.refresh_token },
+                  token: { access_token: token.access_token, refresh_token: token.refresh_token, code_verify_token },
                   expireToken,
                   client_id: createUser._id
             }
@@ -77,17 +79,20 @@ class AuthService {
 
             const payload = createPayload(foundUser)
             const { access_token, refresh_token } = generatePaidToken(payload, { public_key, private_key })
+            const code_verify_token = generateCodeVerifyToken()
 
             const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = fillDataKeyModel(foundUser, public_key, private_key, refresh_token)
             const keyStore = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
             setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(foundUser.toObject(), ['user_password']),
-                  token: { access_token, refresh_token },
+                  token: { access_token, refresh_token, code_verify_token },
+
                   expireToken,
                   client_id: foundUser._id
             }
@@ -112,6 +117,7 @@ class AuthService {
             const payload = createPayload(user)
 
             const { access_token, refresh_token: new_refresh_token } = generatePaidToken(payload, { public_key, private_key })
+            const code_verify_token = generateCodeVerifyToken()
 
             const keyModelQuery = { user_id: user._id }
             const keyModelUpdate = { $set: { refresh_token: new_refresh_token, private_key, public_key }, $addToSet: { refresh_token_used: refresh_token } }
@@ -121,11 +127,12 @@ class AuthService {
 
             setCookieResponse(res, oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'client_id', user._id.toString(), { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(user.toObject(), ['user_password']),
-                  token: { access_token, refresh_token: new_refresh_token },
+                  token: { access_token, refresh_token: new_refresh_token, code_verify_token },
                   expireToken,
                   client_id: user._id.toString()
             }

@@ -32,16 +32,18 @@ class AuthService {
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo key sercet' });
         const payload = (0, token_utils_1.createPayload)(createUser);
         const token = (0, token_utils_1.generatePaidToken)(payload, { public_key, private_key });
+        const code_verify_token = (0, token_utils_1.generateCodeVerifyToken)();
         const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = (0, token_utils_1.fillDataKeyModel)(createUser, public_key, private_key, token.refresh_token);
         const createKey = await keyManager_model_1.default.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption);
         if (!createKey)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', token.access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(createUser.toObject(), ['user_password']),
-            token: { access_token: token.access_token, refresh_token: token.refresh_token },
+            token: { access_token: token.access_token, refresh_token: token.refresh_token, code_verify_token },
             expireToken,
             client_id: createUser._id
         };
@@ -63,16 +65,18 @@ class AuthService {
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo key sercet' });
         const payload = (0, token_utils_1.createPayload)(foundUser);
         const { access_token, refresh_token } = (0, token_utils_1.generatePaidToken)(payload, { public_key, private_key });
+        const code_verify_token = (0, token_utils_1.generateCodeVerifyToken)();
         const { modelKeyOption, modelKeyUpdate, modelKeyQuery } = (0, token_utils_1.fillDataKeyModel)(foundUser, public_key, private_key, refresh_token);
         const keyStore = await keyManager_model_1.default.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption);
         if (!keyStore)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(foundUser.toObject(), ['user_password']),
-            token: { access_token, refresh_token },
+            token: { access_token, refresh_token, code_verify_token },
             expireToken,
             client_id: foundUser._id
         };
@@ -95,16 +99,18 @@ class AuthService {
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo key sercet' });
         const payload = (0, token_utils_1.createPayload)(user);
         const { access_token, refresh_token: new_refresh_token } = (0, token_utils_1.generatePaidToken)(payload, { public_key, private_key });
+        const code_verify_token = (0, token_utils_1.generateCodeVerifyToken)();
         const keyModelQuery = { user_id: user._id };
         const keyModelUpdate = { $set: { refresh_token: new_refresh_token, private_key, public_key }, $addToSet: { refresh_token_used: refresh_token } };
         const keyModelOption = { new: true, upsert: true };
         const updateKeyModel = await keyManager_model_1.default.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption);
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', user._id.toString(), { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(user.toObject(), ['user_password']),
-            token: { access_token, refresh_token: new_refresh_token },
+            token: { access_token, refresh_token: new_refresh_token, code_verify_token },
             expireToken,
             client_id: user._id.toString()
         };

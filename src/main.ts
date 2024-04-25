@@ -30,7 +30,7 @@ app.use(
       cors({
             origin: process.env.CLIENT_URL, // Cho phép truy cập từ origin này
             methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
-            allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
+            allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'CodeVerifyToken'], // Chỉ
             credentials: true
       })
 )

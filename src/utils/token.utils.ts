@@ -19,6 +19,15 @@ export const generatePaidKey = (): Key => {
       return { public_key, private_key }
 }
 
+/**
+ *
+ * @returns Tạo mã xác thực refresh_token dùng 1 lần
+ */
+export const generateCodeVerifyToken = (): string => {
+      const code_verify_refresh_token = randomBytes(20).toString('hex')
+      return code_verify_refresh_token
+}
+
 export const createPayload = (user: UserDocument) => {
       const { _id, user_email, user_roles } = user
 

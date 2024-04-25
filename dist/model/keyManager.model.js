@@ -7,6 +7,7 @@ const keyManagerSchema = new mongoose_1.Schema({
     user_id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     public_key: { type: String, required: true },
     private_key: { type: String, required: true },
+    code_verify_token: { type: String, required: true },
     refresh_token: { type: String, required: true },
     refresh_token_used: { type: [String], required: true }
 }, { collection: COLLECTION_NAME, timestamps: true });
