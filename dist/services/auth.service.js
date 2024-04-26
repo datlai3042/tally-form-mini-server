@@ -38,7 +38,7 @@ class AuthService {
         if (!createKey)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true });
-        // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', token.access_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true });
         return {
@@ -71,7 +71,7 @@ class AuthService {
         if (!keyStore)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true });
-        // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
@@ -110,7 +110,7 @@ class AuthService {
         console.log({ key: updateKeyModel?.toObject() });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', user._id.toString(), { httpOnly: true });
-        // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
         const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(user.toObject(), ['user_password']),

@@ -54,7 +54,7 @@ class AuthService {
             if (!createKey) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
 
             setCookieResponse(res, oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true })
-            // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', token.access_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
 
@@ -92,7 +92,7 @@ class AuthService {
 
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
             setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true })
-            // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
@@ -138,7 +138,7 @@ class AuthService {
 
             setCookieResponse(res, oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'client_id', user._id.toString(), { httpOnly: true })
-            // setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
+            setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
             const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
