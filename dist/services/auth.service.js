@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const response_error_1 = require("../Core/response.error");
-const authentication_1 = require("../middlewares/authentication");
 const keyManager_model_1 = __importDefault(require("../model/keyManager.model"));
 const user_model_1 = __importDefault(require("../model/user.model"));
 const bcrypt_utils_1 = require("../utils/bcrypt.utils");
@@ -56,10 +55,7 @@ class AuthService {
         const checkPassword = (0, bcrypt_utils_1.compare)(password, foundUser?.user_password);
         if (!checkPassword)
             throw new response_error_1.AuthFailedError({ metadata: 'Something wrongs...' });
-        const access_token_old = req.headers[authentication_1.HEADER.AUTHORIZATION];
-        if (access_token_old) {
-            await keyManager_model_1.default.findOneAndDelete({ user_id: foundUser._id });
-        }
+        const foundKey = await keyManager_model_1.default.findOneAndDelete({ user_id: foundUser._id });
         const { public_key, private_key } = (0, token_utils_1.generatePaidKey)();
         if (!public_key || !private_key)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo key sercet' });

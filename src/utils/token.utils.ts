@@ -8,7 +8,7 @@ import { CustomRequest, Key, PayloadJWT, Token } from '~/type'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Key): Token => {
       const access_token = jwt.sign(payload, key.public_key, { expiresIn: '10s' })
-      const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '7d' })
+      const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '20s' })
       if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
 }
@@ -75,7 +75,11 @@ export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req,
             if (error) {
                   return next(new ForbiddenError({ metadata: 'Token không đúng123' }))
             }
+
             const payload = decode as PayloadJWT
+            if (keyStore.refresh_token_used.includes(token)) {
+                  return next(new ForbiddenError({ metadata: 'Token đã được sử dụng' }))
+            }
             if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore

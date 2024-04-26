@@ -75,10 +75,7 @@ class AuthService {
             const checkPassword = compare(password, foundUser?.user_password)
             if (!checkPassword) throw new AuthFailedError({ metadata: 'Something wrongs...' })
 
-            const access_token_old = req.headers[HEADER.AUTHORIZATION]
-            if (access_token_old) {
-                  await keyManagerModel.findOneAndDelete({ user_id: foundUser._id })
-            }
+            const foundKey = await keyManagerModel.findOneAndDelete({ user_id: foundUser._id })
 
             const { public_key, private_key } = generatePaidKey()
             if (!public_key || !private_key) throw new ResponseError({ metadata: 'Server không thể tạo key sercet' })

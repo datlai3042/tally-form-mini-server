@@ -9,7 +9,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_error_1 = require("../Core/response.error");
 const generatePaidToken = (payload, key) => {
     const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '10s' });
-    const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '7d' });
+    const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '20s' });
     if (!access_token || !refresh_token)
         throw new response_error_1.ResponseError({ metadata: 'Lỗi do tạo key' });
     return { access_token, refresh_token };
@@ -65,6 +65,9 @@ const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, n
             return next(new response_error_1.ForbiddenError({ metadata: 'Token không đúng123' }));
         }
         const payload = decode;
+        if (keyStore.refresh_token_used.includes(token)) {
+            return next(new response_error_1.ForbiddenError({ metadata: 'Token đã được sử dụng' }));
+        }
         if (payload._id !== client_id)
             return next(new response_error_1.BadRequestError({ metadata: 'Token không thuộc về user' }));
         req.user = user;
