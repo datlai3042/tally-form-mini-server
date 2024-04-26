@@ -7,7 +7,9 @@ class MongoConnect {
       static connect: Promise<Mongoose>
       static async Connect(): Promise<Mongoose> {
             if (!MongoConnect.connect) {
-                  MongoConnect.connect = mongoose.connect(process.env.MONGO_URI as string)
+                  MongoConnect.connect = mongoose.connect(
+                        process.env.MODE === ('DEV' as string) ? (process.env.MONGO_LOCAL as string) : (process.env.MONGO_URI as string)
+                  )
 
                   MongoConnect.connect
                         .then(() => console.log('Database is connection success'))

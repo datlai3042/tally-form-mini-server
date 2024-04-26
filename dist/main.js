@@ -25,7 +25,7 @@ app.use(body_parser_1.default.json());
 // for parsing application/x-www-form-urlencoded
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL, // Cho phép truy cập từ origin này
+    origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
     methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
     credentials: true
@@ -34,6 +34,6 @@ app.use('', routers_1.default);
 app.use((error, req, res, next) => {
     return (0, errorHandler_1.default)(error, req, res, next);
 });
-app.listen(process.env.PORT, () => {
-    console.log('comming');
+app.listen(process.env.MODE === 'DEV' ? 4000 : process.env.PORT, () => {
+    console.log('comming', process.env.MODE);
 });

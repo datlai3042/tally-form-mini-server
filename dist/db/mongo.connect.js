@@ -10,7 +10,7 @@ class MongoConnect {
     static connect;
     static async Connect() {
         if (!MongoConnect.connect) {
-            MongoConnect.connect = mongoose_1.default.connect(process.env.MONGO_URI);
+            MongoConnect.connect = mongoose_1.default.connect(process.env.MODE === 'DEV' ? process.env.MONGO_LOCAL : process.env.MONGO_URI);
             MongoConnect.connect
                 .then(() => console.log('Database is connection success'))
                 .catch((e) => console.log(`Database is connection false with error::${e}`));

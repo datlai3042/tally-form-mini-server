@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use(
       cors({
-            origin: process.env.CLIENT_URL, // Cho phép truy cập từ origin này
+            origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
             methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
             allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
             credentials: true
@@ -41,6 +41,6 @@ app.use((error: ErrorServer, req: Request, res: Response, next: NextFunction) =>
       return errorHandler(error, req, res, next)
 })
 
-app.listen(process.env.PORT, () => {
-      console.log('comming')
+app.listen(process.env.MODE === 'DEV' ? 4000 : process.env.PORT, () => {
+      console.log('comming', process.env.MODE)
 })
