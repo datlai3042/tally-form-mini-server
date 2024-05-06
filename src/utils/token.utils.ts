@@ -4,16 +4,16 @@ import jwt from 'jsonwebtoken'
 import { AuthFailedError, BadRequestError, ForbiddenError, ResponseError } from '~/Core/response.error'
 import { KeyManagerDocument } from '~/model/keyManager.model'
 import { UserDocument } from '~/model/user.model'
-import { CustomRequest, Key, PayloadJWT, Token } from '~/type'
+import { CustomRequest, Token } from '~/type'
 
-export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Key): Token => {
+export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Token.Key): Token.PairToken => {
       const access_token = jwt.sign(payload, key.public_key, { expiresIn: '10s' })
       const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '20s' })
       if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
 }
 
-export const generatePaidKey = (): Key => {
+export const generatePaidKey = (): Token.Key => {
       const public_key = randomBytes(64).toString('hex')
       const private_key = randomBytes(64).toString('hex')
       return { public_key, private_key }
@@ -60,7 +60,7 @@ export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, 
                   return next(new AuthFailedError({ metadata: 'Token không đúng' }))
             }
 
-            const payload = decode as PayloadJWT
+            const payload = decode as Token.PayloadJWT
             if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore
@@ -76,7 +76,7 @@ export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req,
                   return next(new ForbiddenError({ metadata: 'Token không đúng123' }))
             }
 
-            const payload = decode as PayloadJWT
+            const payload = decode as Token.PayloadJWT
             if (keyStore.refresh_token_used.includes(token)) {
                   return next(new ForbiddenError({ metadata: 'Token đã được sử dụng' }))
             }

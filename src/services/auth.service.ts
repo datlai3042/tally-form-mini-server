@@ -3,7 +3,7 @@ import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '
 import { HEADER } from '~/middlewares/authentication'
 import keyManagerModel from '~/model/keyManager.model'
 import userModel, { UserDocument } from '~/model/user.model'
-import { CustomRequest, PayloadJWT } from '~/type'
+import { CustomRequest, Token } from '~/type'
 import { compare, hassPassword } from '~/utils/bcrypt.utils'
 import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse.utils'
 import { createPayload, fillDataKeyModel, generateCodeVerifyToken, generatePaidKey, generatePaidToken } from '~/utils/token.utils'
@@ -39,7 +39,7 @@ class AuthService {
 
             const payload = createPayload(createUser)
 
-            const token = generatePaidToken<PayloadJWT>(payload, { public_key, private_key })
+            const token = generatePaidToken<Token.PayloadJWT>(payload, { public_key, private_key })
             const code_verify_token = generateCodeVerifyToken()
 
             const { modelKeyQuery, modelKeyUpdate, modelKeyOption } = fillDataKeyModel(

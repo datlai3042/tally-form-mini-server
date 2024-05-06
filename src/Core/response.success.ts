@@ -1,14 +1,14 @@
 import { Response } from 'express'
-import { ResSucess } from '~/type'
 import statusCode from './statusCode'
 import reasonCode from './reasonStatusCode'
+import { Http } from '~/type'
 
 class ResponseSuccess {
       private code: number
       private message: string
       private metadata: any
 
-      constructor({ code = statusCode.OK, message = reasonCode.OK, metadata }: ResSucess) {
+      constructor({ code = statusCode.OK, message = reasonCode.OK, metadata }: Http.ResSucess) {
             this.code = code
             this.message = message
             this.metadata = metadata
@@ -20,13 +20,13 @@ class ResponseSuccess {
 }
 
 class CREATE extends ResponseSuccess {
-      constructor({ code = statusCode.CREATED, message = reasonCode.CREATED, metadata = {} }: ResSucess) {
+      constructor({ code = statusCode.CREATED, message = reasonCode.CREATED, metadata = {} }: Http.ResSucess) {
             super({ code, message, metadata })
       }
 }
 
 class OK extends ResponseSuccess {
-      constructor({ code = statusCode.OK, message = reasonCode.OK, metadata = {} }: ResSucess) {
+      constructor({ code = statusCode.OK, message = reasonCode.OK, metadata = {} }: Http.ResSucess) {
             super({ code, message, metadata })
       }
 }
