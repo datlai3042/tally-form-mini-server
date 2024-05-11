@@ -4,13 +4,14 @@ import { KeyManagerDocument } from './model/keyManager.model'
 import { ObjectId } from 'mongoose'
 import { FormSchema } from './model/form.model'
 
-export interface CustomRequest<Body = any> extends Request {
+export interface CustomRequest<Body = any, Query = any> extends Request {
       user?: UserDocument
       keyStore?: KeyManagerDocument
       refresh_token?: string
       force?: boolean
       router?: string
       body: Body
+      query: Query
 }
 
 interface ErrorServer extends Error {
@@ -52,24 +53,96 @@ namespace Token {
 }
 
 namespace InputCore {
-      export type Input = {
-            input_title: string
-            input_errors: string
-            input_value: string
+      export type InputCommon = {
+            input_heading: string
+            input_heading_type: 'LABEL' | 'TITLE'
+            input_error: string
       }
 
-      export type InputDateTimeAny = { date_type: 'Any'; date_time: number }
-      export type InputDateTimeBefore = { date_type: 'Before'; date_time: number }
-      export type InputDateTimeAfter = { date_type: 'After'; date_time: number }
-      export type InputDateTimeBetween = { date_type: 'Between'; date_time_1: number; date_time_2: number }
+      namespace InputEmail {
+            export interface InputTypeEmail extends InputCore.InputCommon {
+                  type: 'EMAIL'
+                  placeholder: string
+                  input_value: string
 
-      export type InputDateTime = InputDateTimeAny | InputDateTimeBefore | InputDateTimeAfter | InputDateTimeBetween
-      export type InputText = 'Email' | 'Number'
-      export type InputTypeText = Input & { type: InputText; placeholder: string }
-      export type InputTypeOption = Input & { type: 'Option'; option: string[] }
-      export type InputTypeDate = Omit<Input, 'input_value'> & InputDateTime & { type: 'Date' }
-      export type InputTypeImage = { type: 'IMAGE'; caption: string; alt: string; url: string }
-      export type InputForm = InputTypeText | InputTypeOption | InputTypeDate | InputTypeImage
+                  conditions: {
+                        email_min_length: number
+                        enail_max_length: number
+                        require: boolean
+                  }
+            }
+
+            export interface InputEmailSender extends InputTypeEmail {
+                  input_value: string
+            }
+      }
+
+      namespace InputDate {
+            export type InputDateTimeAny = {
+                  type: 'Date'
+                  date_type: 'Any'
+                  conditions: {
+                        date_time: number
+                        require: boolean
+                  }
+            }
+            export type InputDateTimeBefore = {
+                  type: 'Date'
+                  date_type: 'Before'
+                  conditions: {
+                        date_time: number
+                        require: boolean
+                  }
+            }
+            export type InputDateTimeAfter = {
+                  type: 'Date'
+                  date_type: 'After'
+                  conditions: {
+                        date_time: number
+                        require: true
+                  }
+            }
+            export type InputDateTimeBetween = { type: 'Date'; date_type: 'Between'; date_time_1: number; date_time_2: number }
+
+            export type InputDateTime = InputDateTimeAny | InputDateTimeBefore | InputDateTimeAfter | InputDateTimeBetween
+            export type InputTypeDate = InputDateTime & InputCore.InputCommon
+      }
+
+      namespace InputText {
+            export type InputText = 'TEXT'
+            export type InputTypeText = InputCore.InputCommon & {
+                  type: InputText
+                  placeholder: string
+                  conditions: {
+                        text_min_length: number
+                        text_max_length: number
+                        require: boolean
+                  }
+            }
+      }
+
+      namespace InputOption {
+            export type InputTypeOption = InputCore.InputCommon & { type: 'Option'; option: string[]; conditions: { require: true } }
+      }
+
+      namespace InputImage {
+            export type InputTypeImage = {
+                  type: 'IMAGE'
+                  caption: string
+                  alt: string
+                  url: string
+                  secure_url: string
+                  public_id: string
+                  conditions: { require: true }
+            }
+      }
+
+      export type InputForm =
+            | InputText.InputTypeText
+            | InputEmail.InputTypeEmail
+            | InputOption.InputTypeOption
+            | InputDate.InputTypeDate
+            | InputImage.InputTypeImage
 }
 
 namespace UpdateAccount {
@@ -85,8 +158,7 @@ namespace UpdateAccount {
 
 namespace FormEdit {
       export type FormEditParams = {
-            form_id: string
-            form_update: FormSchema
+            form: FormSchema & { _id: string }
       }
 
       export type FindFormParams = {

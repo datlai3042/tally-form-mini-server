@@ -4,7 +4,7 @@ import userModel from '~/model/user.model'
 import { CustomRequest, UpdateAccount } from '~/type'
 import { compare } from '~/utils/bcrypt.utils'
 import { expriresAT, omit, setCookieResponse } from '~/utils/dataResponse.utils'
-import { InputValidate, validateEmail } from '~/utils/inputs.validate'
+import { validateEmail } from '~/utils/inputs.validate'
 import uploadToCloudinary from '~/utils/upload.cloudinary'
 
 class AccountService {

@@ -3,13 +3,13 @@ import { InputCore } from '~/type'
 
 export class InputHelper {
       static typeNumber(input: InputCore.InputForm, errors: string[] = []) {}
-      static typeEmail(input: InputCore.InputTypeText, errors: string[] = []) {
+      static typeEmail(input: InputCore.InputEmail.InputTypeEmail, errors: string[] = []) {
             if (InputValidate.typeEmail(input)) return input
-            return errors.push(input.input_errors)
+            return errors.push(input.input_error)
       }
-      static typeDate(input: InputCore.InputTypeDate, errors: string[]) {
+      static typeDate(input: InputCore.InputDate.InputTypeDate, errors: string[]) {
             if (InputValidate.typeDate(input)) return input
-            return errors.push(input.input_errors)
+            return errors.push(input.input_error)
       }
 }
 
@@ -18,11 +18,11 @@ export class InputValidate {
             // if()
             // return true ? true : errors.push('')
       }
-      static typeEmail(input: InputCore.InputTypeText, errors: string[] = []) {
+      static typeEmail(input: InputCore.InputEmail.InputTypeEmail, errors: string[] = []) {
             const regex = /[^\s@]+@[^\s@]+\.[^\s@]+/gi
-            return input.input_value.match(regex)
+            return input?.input_value?.match(regex)
       }
-      static typeDate(input: InputCore.InputTypeDate) {
+      static typeDate(input: InputCore.InputDate.InputTypeDate) {
             if (input.date_type === 'Any') {
                   return input
             }
@@ -42,12 +42,12 @@ const validateInputChecker = (input_data: InputCore.InputForm[], input_condition
       const check = input_data.every((input) => {
             if (input.type === 'IMAGE' || input.type === 'Option') return
             switch (input.type) {
-                  case 'Email':
+                  case 'EMAIL':
                         return InputHelper.typeEmail(input, errors)
                   case 'Date':
                         return InputHelper.typeDate(input, errors)
-                  case 'Number':
-                        return InputHelper.typeNumber(input, errors)
+                  // case 'Number':
+                  //       return InputHelper.typeNumber(input, errors)
 
                   default:
                         return new NotFoundError({ metadata: 'Định dạng input không được hỗ trợ' })

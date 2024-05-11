@@ -20,24 +20,24 @@ const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) =
         throw new response_error_1.BadRequestError({ metadata: 'CLIENT::Không truyền user_id' });
     const access_token = req.cookies['access_token'];
     if (!access_token)
-        throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy access_token' });
+        throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy access_token' });
     const user = await user_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(client_id) });
     if (!user)
-        throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy user' });
-    const keyStore = await keyManager_model_1.default.findOne({ user_id: user._id });
-    if (!keyStore)
-        throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy key của user' });
+        throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy user' });
     const force = req.body.force;
     if (force && req.originalUrl === '/v1/api/auth/logout') {
         req.user = user;
         return next();
     }
+    const keyStore = await keyManager_model_1.default.findOne({ user_id: user._id });
+    if (!keyStore)
+        throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy key của user' });
     //CASE: Auth refresh_token
     if (req.originalUrl === '/v1/api/auth/refresh-token') {
         const code_verify_token = req.cookies['code_verify_token'];
         console.log({ code_verify_token, db: keyStore.code_verify_token });
         if (code_verify_token.toLowerCase() !== keyStore.code_verify_token.toLowerCase()) {
-            throw new response_error_1.NotFoundError({ metadata: 'Yêu cầu không hợp lệ' });
+            throw new response_error_1.ForbiddenError({ metadata: 'Yêu cầu không hợp lệ' });
         }
         const refresh_token = req.cookies['refresh_token'];
         if (!refresh_token)

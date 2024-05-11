@@ -8,8 +8,8 @@ const crypto_1 = require("crypto");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_error_1 = require("../Core/response.error");
 const generatePaidToken = (payload, key) => {
-    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '10s' });
-    const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '20s' });
+    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '30m' });
+    const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '30m' });
     if (!access_token || !refresh_token)
         throw new response_error_1.ResponseError({ metadata: 'Lỗi do tạo key' });
     return { access_token, refresh_token };
