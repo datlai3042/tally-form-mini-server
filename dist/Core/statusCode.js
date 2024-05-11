@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const statusCode = {
     /**
      * Official Documentation @ https://tools.ietf.org/html/rfc7231#section-6.2.1
@@ -344,4 +342,4 @@ const statusCode = {
      */
     NETWORK_AUTHENTICATION_REQUIRED: 511
 };
-exports.default = statusCode;
+export default statusCode;

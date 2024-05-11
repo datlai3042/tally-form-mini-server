@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express'
-import { CREATE, OK } from '~/Core/response.success'
-import FormService from '~/services/form.service'
-import { CustomRequest } from '~/type'
+import { CREATE, OK } from '~/Core/response.success.js'
+import FormService from '~/services/form.service.js'
+import { CustomRequest } from '~/type.js'
 
 class FormController {
       static async createForm(req: CustomRequest, res: Response, next: NextFunction) {

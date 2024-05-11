@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import authentication from '~/middlewares/authentication'
+import authentication from '~/middlewares/authentication.js'
 
 const routerProduct = Router()
 

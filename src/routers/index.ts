@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import routerAuth from './auth'
-import routerProduct from './product'
-import routerAccount from './account'
-import routerForm from './form-core'
+import routerAuth from './auth/index.js'
+import routerProduct from './product/index.js'
+import routerForm from './form-core/index.js'
+import routerAccount from './account/index.js'
 
 const router = Router()
 

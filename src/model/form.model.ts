@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types, model } from 'mongoose'
-import { InputCore } from '~/type'
-import { inputDateSchema, inputEmailSchema, inputTextSchema } from './input.model'
+import { InputCore } from '~/type.js'
+import { inputDateSchema, inputEmailSchema, inputTextSchema } from './input.model.js'
 
 const DOCUMENT_NAME = 'Form'
 const COLLECTION_NAME = 'forms'

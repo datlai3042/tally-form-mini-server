@@ -1,17 +1,17 @@
 import express, { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
-import { ErrorServer } from './type'
 
 import { config } from 'dotenv'
 import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 import morgan from 'morgan'
-import router from './routers'
 import cookieParser from 'cookie-parser'
 
-import MongoConnect from './db/mongo.connect'
-import errorHandler from './helpers/errorHandler'
 import bodyParser from 'body-parser'
+import router from './routers/index.js'
+import { ErrorServer } from './type.js'
+import errorHandler from './helpers/errorHandler.js'
+import MongoConnect from './db/mongo.connect.js'
 
 config()
 const app = express()

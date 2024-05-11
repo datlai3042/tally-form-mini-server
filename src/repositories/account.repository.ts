@@ -1,4 +1,4 @@
-import { UserDocument } from '~/model/user.model'
+import { UserDocument } from '~/model/user.model.js'
 
 class AccountRepository {
       static async findOneUser(user: UserDocument) {

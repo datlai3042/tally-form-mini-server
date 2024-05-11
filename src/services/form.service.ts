@@ -1,8 +1,8 @@
 import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
-import { BadRequestError } from '~/Core/response.error'
-import formModel from '~/model/form.model'
-import { CustomRequest, FormEdit } from '~/type'
+import { BadRequestError } from '~/Core/response.error.js'
+import formModel from '~/model/form.model.js'
+import { CustomRequest, FormEdit } from '~/type.js'
 
 class FormService {
       static async createForm(req: CustomRequest, res: Response, next: NextFunction) {

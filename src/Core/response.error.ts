@@ -1,6 +1,6 @@
-import statusCode from './statusCode'
-import reasonCode from './reasonStatusCode'
-import { Http } from '~/type'
+import { Http } from '~/type.js'
+import reasonCode from './reasonStatusCode.js'
+import statusCode from './statusCode.js'
 
 export class ResponseError extends Error {
       code: number

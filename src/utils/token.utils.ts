@@ -1,10 +1,10 @@
 import { randomBytes } from 'crypto'
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { AuthFailedError, BadRequestError, ForbiddenError, ResponseError } from '~/Core/response.error'
-import { KeyManagerDocument } from '~/model/keyManager.model'
-import { UserDocument } from '~/model/user.model'
-import { CustomRequest, Token } from '~/type'
+import { AuthFailedError, BadRequestError, ForbiddenError, ResponseError } from '~/Core/response.error.js'
+import { KeyManagerDocument } from '~/model/keyManager.model.js'
+import { UserDocument } from '~/model/user.model.js'
+import { CustomRequest, Token } from '~/type.js'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Token.Key): Token.PairToken => {
       const access_token = jwt.sign(payload, key.public_key, { expiresIn: '30m' })

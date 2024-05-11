@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose'
-import { InputCore } from '~/type'
+import { InputCore } from '~/type.js'
 
 export const inputEmailSchema = new Schema<InputCore.InputEmail.InputTypeEmail>({
       type: { type: String, default: 'EMAIL' },

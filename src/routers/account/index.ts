@@ -1,18 +1,17 @@
 import { Router } from 'express'
-import { upload } from '~/configs/cloudinary.config'
-import AccountController from '~/controllers/account.controller'
-import { asyncHandler } from '~/helpers/asyncHandler'
-import authentication from '~/middlewares/authentication'
-import AccountService from '~/services/account.service'
+import { upload } from '~/configs/cloudinary.config.js'
+import AccountController from '~/controllers/account.controller.js'
+import { asyncHandler } from '~/helpers/asyncHandler.js'
+import authentication from '~/middlewares/authentication.js'
 
-const accountRouter = Router()
+const routerAccount = Router()
 
-accountRouter.use(authentication)
+routerAccount.use(authentication)
 
-accountRouter.post('/update-avatar', upload.single('file'), asyncHandler(AccountController.updateAvatar))
-accountRouter.post('/update-email', asyncHandler(AccountController.updateEmail))
-accountRouter.post('/update-password', asyncHandler(AccountController.updatePassword))
+routerAccount.post('/update-avatar', upload.single('file'), asyncHandler(AccountController.updateAvatar))
+routerAccount.post('/update-email', asyncHandler(AccountController.updateEmail))
+routerAccount.post('/update-password', asyncHandler(AccountController.updatePassword))
 
-accountRouter.get('/me', asyncHandler(AccountController.me))
+routerAccount.get('/me', asyncHandler(AccountController.me))
 
-export default accountRouter
+export default routerAccount
