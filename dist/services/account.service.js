@@ -7,7 +7,6 @@ const response_error_1 = require("../Core/response.error");
 const user_model_1 = __importDefault(require("../model/user.model"));
 const bcrypt_utils_1 = require("../utils/bcrypt.utils");
 const dataResponse_utils_1 = require("../utils/dataResponse.utils");
-const inputs_validate_1 = require("../utils/inputs.validate");
 const upload_cloudinary_1 = __importDefault(require("../utils/upload.cloudinary"));
 class AccountService {
     static async me(req, res, next) {
@@ -35,9 +34,8 @@ class AccountService {
     static async updateEmail(req, res, next) {
         const { user } = req;
         const { user_new_email, user_password } = req.body;
-        const checkEmail = (0, inputs_validate_1.validateEmail)(user_new_email);
-        if (!checkEmail)
-            throw new response_error_1.BadRequestError({ metadata: 'Email không hợp lệ' });
+        // const checkEmail = validateEmail(user_new_email)
+        // if (!checkEmail) throw new BadRequestError({ metadata: 'Email không hợp lệ' })
         const comparePassword = (0, bcrypt_utils_1.compare)(user_password, user?.user_password);
         if (!comparePassword)
             throw new response_error_1.BadRequestError({ metadata: 'Password not match !!!' });

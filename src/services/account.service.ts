@@ -4,7 +4,6 @@ import userModel from '~/model/user.model'
 import { CustomRequest, UpdateAccount } from '~/type'
 import { compare } from '~/utils/bcrypt.utils'
 import { expriresAT, omit, setCookieResponse } from '~/utils/dataResponse.utils'
-import { validateEmail } from '~/utils/inputs.validate'
 import uploadToCloudinary from '~/utils/upload.cloudinary'
 
 class AccountService {
@@ -41,8 +40,8 @@ class AccountService {
 
             const { user_new_email, user_password } = req.body
 
-            const checkEmail = validateEmail(user_new_email)
-            if (!checkEmail) throw new BadRequestError({ metadata: 'Email không hợp lệ' })
+            // const checkEmail = validateEmail(user_new_email)
+            // if (!checkEmail) throw new BadRequestError({ metadata: 'Email không hợp lệ' })
 
             const comparePassword = compare(user_password, user?.user_password as string)
 
