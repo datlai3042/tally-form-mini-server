@@ -2,7 +2,7 @@ import { Router } from 'express'
 import routerAuth from './auth'
 import routerProduct from './product'
 import routerAccount from './account'
-import routerForm from './form'
+import routerForm from './form-core'
 
 const router = Router()
 
