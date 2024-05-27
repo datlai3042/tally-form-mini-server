@@ -1,11 +1,11 @@
 import { NextFunction, Response } from 'express'
-import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '~/Core/response.error.js'
-import keyManagerModel from '~/model/keyManager.model.js'
-import userModel, { UserDocument } from '~/model/user.model.js'
-import { CustomRequest, Token } from '~/type.js'
-import { compare, hassPassword } from '~/utils/bcrypt.utils.js'
-import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse.utils.js'
-import { createPayload, fillDataKeyModel, generateCodeVerifyToken, generatePaidKey, generatePaidToken } from '~/utils/token.utils.js'
+import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '~/Core/response.error'
+import keyManagerModel from '~/model/keyManager.model'
+import userModel, { UserDocument } from '~/model/user.model'
+import { CustomRequest, Token } from '~/type'
+import { compare, hassPassword } from '~/utils/bcrypt.utils'
+import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse.utils'
+import { createPayload, fillDataKeyModel, generateCodeVerifyToken, generatePaidKey, generatePaidToken } from '~/utils/token.utils'
 
 type AuthParam = {
       email: string

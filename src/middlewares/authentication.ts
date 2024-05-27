@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 import { Types } from 'mongoose'
-import { AuthFailedError, BadRequestError, ForbiddenError } from '~/Core/response.error.js'
-import { asyncHandler } from '~/helpers/asyncHandler.js'
-import keyManagerModel from '~/model/keyManager.model.js'
-import userModel from '~/model/user.model.js'
-import { CustomRequest } from '~/type.js'
-import { verifyAccessToken, verifyRefreshToken } from '~/utils/token.utils.js'
+import { AuthFailedError, BadRequestError, ForbiddenError } from '~/Core/response.error'
+import { asyncHandler } from '~/helpers/asyncHandler'
+import keyManagerModel from '~/model/keyManager.model'
+import userModel from '~/model/user.model'
+import { CustomRequest } from '~/type'
+import { verifyAccessToken, verifyRefreshToken } from '~/utils/token.utils'
 
 interface IHEADER {
       CLIENT_ID: string

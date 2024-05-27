@@ -1,5 +1,8 @@
-import { BadRequestError, NotFoundError } from '../Core/response.error.js';
-export class InputHelper {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateEmail = exports.InputValidate = exports.InputHelper = void 0;
+const response_error_1 = require("../Core/response.error");
+class InputHelper {
     static typeNumber(input, errors = []) { }
     static typeEmail(input, errors = []) {
         if (InputValidate.typeEmail(input))
@@ -12,7 +15,8 @@ export class InputHelper {
         return errors.push(input.input_error);
     }
 }
-export class InputValidate {
+exports.InputHelper = InputHelper;
+class InputValidate {
     static typeNumber(input, errors = []) {
         // if()
         // return true ? true : errors.push('')
@@ -30,10 +34,12 @@ export class InputValidate {
         }
     }
 }
-export const validateEmail = (email) => {
+exports.InputValidate = InputValidate;
+const validateEmail = (email) => {
     const regex = /[^\s@]+@[^\s@]+\.[^\s@]+/gi;
     return email.match(regex);
 };
+exports.validateEmail = validateEmail;
 const validateInputChecker = (input_data, input_condition_validate) => {
     const errors = [];
     const check = input_data.every((input) => {
@@ -47,9 +53,9 @@ const validateInputChecker = (input_data, input_condition_validate) => {
             // case 'Number':
             //       return InputHelper.typeNumber(input, errors)
             default:
-                return new NotFoundError({ metadata: 'Định dạng input không được hỗ trợ' });
+                return new response_error_1.NotFoundError({ metadata: 'Định dạng input không được hỗ trợ' });
         }
     });
-    return check ? input_data : new BadRequestError({ metadata: errors });
+    return check ? input_data : new response_error_1.BadRequestError({ metadata: errors });
 };
-export default validateInputChecker;
+exports.default = validateInputChecker;

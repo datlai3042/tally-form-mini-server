@@ -1,5 +1,5 @@
-import { BadRequestError, NotFoundError } from '~/Core/response.error.js'
-import { InputCore } from '~/type.js'
+import { BadRequestError, NotFoundError } from '~/Core/response.error'
+import { InputCore } from '~/type'
 
 export class InputHelper {
       static typeNumber(input: InputCore.InputForm, errors: string[] = []) {}

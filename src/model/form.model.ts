@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types, model } from 'mongoose'
-import { InputCore } from '~/type.js'
-import { inputDateSchema, inputEmailSchema, inputTextSchema } from './input.model.js'
+import { InputCore } from '~/type'
+import { inputDateSchema, inputEmailSchema, inputTextSchema } from './input.model'
 
 const DOCUMENT_NAME = 'Form'
 const COLLECTION_NAME = 'forms'
@@ -16,10 +16,12 @@ export type FormSchema = {
 
       form_background?: {
             form_background_iamge_url: string
+            form_backround_image_publicId: string
       }
 
       form_avatar?: {
             form_avatar_url: string
+            form_avatar_publicId: string
       }
 
       form_setting_default: {
@@ -39,10 +41,11 @@ export const formSchema = new Schema<FormSchemaDoc>(
       {
             form_owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
             form_title: { type: String },
-            form_avatar: { type: { form_avatar_url: String } },
+            form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String } },
             form_background: {
                   type: {
-                        form_background_iamge_url: String
+                        form_background_iamge_url: String,
+                        form_backround_image_publicId: String
                   }
             },
             form_state: { type: String, enum: ['isDraff', 'isPublic', 'isPrivate'], default: 'isDraff' },

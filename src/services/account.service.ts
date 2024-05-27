@@ -1,11 +1,11 @@
 import { NextFunction, Response } from 'express'
-import { BadRequestError } from '~/Core/response.error.js'
-import userModel from '~/model/user.model.js'
-import { CustomRequest, UpdateAccount } from '~/type.js'
-import { compare } from '~/utils/bcrypt.utils.js'
-import { expriresAT, omit, setCookieResponse } from '~/utils/dataResponse.utils.js'
-import { validateEmail } from '~/utils/inputsValidate.js'
-import uploadToCloudinary from '~/utils/upload.cloudinary.js'
+import { BadRequestError } from '~/Core/response.error'
+import userModel from '~/model/user.model'
+import { CustomRequest, UpdateAccount } from '~/type'
+import { compare } from '~/utils/bcrypt.utils'
+import { expriresAT, omit, setCookieResponse } from '~/utils/dataResponse.utils'
+import { validateEmail } from '~/utils/inputsValidate'
+import uploadToCloudinary from '~/utils/upload.cloudinary'
 
 class AccountService {
       static async me(req: CustomRequest, res: Response, next: NextFunction) {
@@ -21,7 +21,7 @@ class AccountService {
             const file = req.file
             if (!file) throw new BadRequestError({ metadata: 'Missing File' })
 
-            const folder = `users/${user?.id}/avatar`
+            const folder = `tally-form-project/users/${user?.id}/avatar`
             const result = await uploadToCloudinary(req?.file as Express.Multer.File, folder)
 
             const userQueryDoc = { _id: user?._id }

@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const reasonCode = {
     /**
      * Official Documentation @ https://tools.ietf.org/html/rfc7231#section-6.3.3
@@ -342,4 +344,4 @@ const reasonCode = {
      */
     MISDIRECTED_REQUEST: 'Misdirected Request'
 };
-export default reasonCode;
+exports.default = reasonCode;

@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { upload } from '~/configs/cloudinary.config.js'
-import AccountController from '~/controllers/account.controller.js'
-import { asyncHandler } from '~/helpers/asyncHandler.js'
-import authentication from '~/middlewares/authentication.js'
+import { upload } from '~/configs/cloudinary.config'
+import AccountController from '~/controllers/account.controller'
+import { asyncHandler } from '~/helpers/asyncHandler'
+import authentication from '~/middlewares/authentication'
 
 const routerAccount = Router()
 

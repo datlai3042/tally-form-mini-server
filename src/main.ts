@@ -8,10 +8,10 @@ import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 
 import bodyParser from 'body-parser'
-import router from './routers/index.js'
-import { ErrorServer } from './type.js'
-import errorHandler from './helpers/errorHandler.js'
-import MongoConnect from './db/mongo.connect.js'
+import router from './routers'
+import { ErrorServer } from './type'
+import MongoConnect from './db/mongo.connect'
+import errorHandler from './helpers/errorHandler'
 
 config()
 const app = express()

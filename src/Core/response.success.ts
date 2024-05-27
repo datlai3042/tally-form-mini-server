@@ -1,7 +1,7 @@
 import { Response } from 'express'
-import statusCode from './statusCode.js'
-import reasonCode from './reasonStatusCode.js'
-import { Http } from '~/type.js'
+import statusCode from './statusCode'
+import reasonCode from './reasonStatusCode'
+import { Http } from '~/type'
 
 class ResponseSuccess {
       private code: number

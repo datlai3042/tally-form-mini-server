@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express'
-import { CREATE, OK } from '~/Core/response.success.js'
-import AccountService from '~/services/account.service.js'
-import { CustomRequest } from '~/type.js'
+import { CREATE, OK } from '~/Core/response.success'
+import AccountService from '~/services/account.service'
+import { CustomRequest } from '~/type'
 
 class AccountController {
       static async me(req: CustomRequest, res: Response, next: NextFunction) {

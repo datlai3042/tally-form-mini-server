@@ -1,27 +1,36 @@
-import { randomBytes } from 'crypto';
-import jwt from 'jsonwebtoken';
-import { AuthFailedError, BadRequestError, ForbiddenError, ResponseError } from '../Core/response.error.js';
-export const generatePaidToken = (payload, key) => {
-    const access_token = jwt.sign(payload, key.public_key, { expiresIn: '30m' });
-    const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '30m' });
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fillDataKeyModel = exports.verifyRefreshToken = exports.verifyAccessToken = exports.createPayload = exports.generateCodeVerifyToken = exports.generatePaidKey = exports.generatePaidToken = void 0;
+const crypto_1 = require("crypto");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const response_error_1 = require("../Core/response.error");
+const generatePaidToken = (payload, key) => {
+    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '30m' });
+    const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '30m' });
     if (!access_token || !refresh_token)
-        throw new ResponseError({ metadata: 'Lỗi do tạo key' });
+        throw new response_error_1.ResponseError({ metadata: 'Lỗi do tạo key' });
     return { access_token, refresh_token };
 };
-export const generatePaidKey = () => {
-    const public_key = randomBytes(64).toString('hex');
-    const private_key = randomBytes(64).toString('hex');
+exports.generatePaidToken = generatePaidToken;
+const generatePaidKey = () => {
+    const public_key = (0, crypto_1.randomBytes)(64).toString('hex');
+    const private_key = (0, crypto_1.randomBytes)(64).toString('hex');
     return { public_key, private_key };
 };
+exports.generatePaidKey = generatePaidKey;
 /**
  *
  * @returns Tạo mã xác thực refresh_token dùng 1 lần
  */
-export const generateCodeVerifyToken = () => {
-    const code_verify_refresh_token = randomBytes(20).toString('hex');
+const generateCodeVerifyToken = () => {
+    const code_verify_refresh_token = (0, crypto_1.randomBytes)(20).toString('hex');
     return code_verify_refresh_token;
 };
-export const createPayload = (user) => {
+exports.generateCodeVerifyToken = generateCodeVerifyToken;
+const createPayload = (user) => {
     const { _id, user_email, user_roles } = user;
     const payload = {
         _id,
@@ -30,42 +39,45 @@ export const createPayload = (user) => {
     };
     return payload;
 };
-export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
-    jwt.verify(token, key, (error, decode) => {
+exports.createPayload = createPayload;
+const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
+    jsonwebtoken_1.default.verify(token, key, (error, decode) => {
         if (error) {
             if (req.originalUrl === '/v1/api/auth/logout') {
                 req.user = user;
                 return next();
             }
-            return next(new AuthFailedError({ metadata: 'Token không đúng' }));
+            return next(new response_error_1.AuthFailedError({ metadata: 'Token không đúng' }));
         }
         const payload = decode;
         if (payload._id !== client_id)
-            return next(new BadRequestError({ metadata: 'Token không thuộc về user' }));
+            return next(new response_error_1.BadRequestError({ metadata: 'Token không thuộc về user' }));
         req.user = user;
         req.keyStore = keyStore;
     });
     return next();
 };
-export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
+exports.verifyAccessToken = verifyAccessToken;
+const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
     const force = req.body.force;
-    jwt.verify(token, key, (error, decode) => {
+    jsonwebtoken_1.default.verify(token, key, (error, decode) => {
         if (error) {
-            return next(new ForbiddenError({ metadata: 'Token không đúng123' }));
+            return next(new response_error_1.ForbiddenError({ metadata: 'Token không đúng123' }));
         }
         const payload = decode;
         if (keyStore.refresh_token_used.includes(token)) {
-            return next(new ForbiddenError({ metadata: 'Token đã được sử dụng' }));
+            return next(new response_error_1.ForbiddenError({ metadata: 'Token đã được sử dụng' }));
         }
         if (payload._id !== client_id)
-            return next(new BadRequestError({ metadata: 'Token không thuộc về user' }));
+            return next(new response_error_1.BadRequestError({ metadata: 'Token không thuộc về user' }));
         req.user = user;
         req.keyStore = keyStore;
         req.refresh_token = token;
         return next();
     });
 };
-export const fillDataKeyModel = (user, public_key, private_key, refresh_token, code_verify_token) => {
+exports.verifyRefreshToken = verifyRefreshToken;
+const fillDataKeyModel = (user, public_key, private_key, refresh_token, code_verify_token) => {
     const modelKeyQuery = {
         user_id: user?._id
     };
@@ -75,3 +87,4 @@ export const fillDataKeyModel = (user, public_key, private_key, refresh_token, c
     const modelKeyOption = { new: true, upsert: true };
     return { modelKeyQuery, modelKeyUpdate, modelKeyOption };
 };
+exports.fillDataKeyModel = fillDataKeyModel;

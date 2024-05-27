@@ -62,13 +62,13 @@ namespace InputCore {
       namespace InputEmail {
             export interface InputTypeEmail extends InputCore.InputCommon {
                   type: 'EMAIL'
-                  placeholder: string
                   input_value: string
-
-                  conditions: {
-                        email_min_length: number
-                        enail_max_length: number
+                  setting?: {
                         require: boolean
+                        placeholder?: string
+                        minLength1: boolean
+                        maxLength1: boolean
+                        input_error?: string
                   }
             }
 
@@ -89,17 +89,23 @@ namespace InputCore {
             export type InputDateTimeBefore = {
                   type: 'Date'
                   date_type: 'Before'
-                  conditions: {
-                        date_time: number
+                  setting?: {
                         require: boolean
+                        placeholder?: string
+                        minLength: boolean
+                        maxLength: boolean
+                        input_error?: string
                   }
             }
             export type InputDateTimeAfter = {
                   type: 'Date'
                   date_type: 'After'
-                  conditions: {
-                        date_time: number
-                        require: true
+                  setting?: {
+                        require: boolean
+                        placeholder?: string
+                        minLength: boolean
+                        maxLength: boolean
+                        input_error?: string
                   }
             }
             export type InputDateTimeBetween = { type: 'Date'; date_type: 'Between'; date_time_1: number; date_time_2: number }
@@ -112,11 +118,12 @@ namespace InputCore {
             export type InputText = 'TEXT'
             export type InputTypeText = InputCore.InputCommon & {
                   type: InputText
-                  placeholder: string
-                  conditions: {
-                        text_min_length: number
-                        text_max_length: number
+                  setting?: {
                         require: boolean
+                        placeholder?: string
+                        minLength: boolean
+                        maxLength: boolean
+                        input_error?: string
                   }
             }
       }

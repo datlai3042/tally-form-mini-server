@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express'
-import { CREATE, OK } from '~/Core/response.success.js'
-import FormService from '~/services/form.service.js'
-import { CustomRequest } from '~/type.js'
+import { CREATE, OK } from '~/Core/response.success'
+import FormService from '~/services/form.service'
+import { CustomRequest } from '~/type'
 
 class FormController {
       static async createForm(req: CustomRequest, res: Response, next: NextFunction) {
@@ -26,6 +26,22 @@ class FormController {
 
       static async updateForm(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.updateForm(req, res, next) }).send(res)
+      }
+
+      static async uploadAvatar(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.uploadAvatar(req, res, next) }).send(res)
+      }
+
+      static async uploadCover(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.uploadCover(req, res, next) }).send(res)
+      }
+
+      static async deleteAvatar(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.deleteAvatar(req, res, next) }).send(res)
+      }
+
+      static async deleteCover(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.deleteCover(req, res, next) }).send(res)
       }
 }
 

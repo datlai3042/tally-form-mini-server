@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import reasonCode from '~/Core/reasonStatusCode.js'
-import statusCode from '~/Core/statusCode.js'
-import { ErrorServer } from '~/type.js'
+import reasonCode from '~/Core/reasonStatusCode'
+import statusCode from '~/Core/statusCode'
+import { ErrorServer } from '~/type'
 
 const errorHandler = <ErrorCustom extends ErrorServer>(error: ErrorCustom, req: Request, res: Response, next: NextFunction) => {
       console.log('errroHandle', JSON.parse(JSON.stringify(error.stack || 'Not')))
