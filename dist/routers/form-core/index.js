@@ -16,9 +16,17 @@ routerForm.get('/get-form-id', (0, asyncHandler_1.asyncHandler)(form_controller_
 routerForm.get('/find-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.findFormUpdate));
 routerForm.post('/create-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.createForm));
 routerForm.post('/upload-avatar', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadAvatar));
+routerForm.post('/add-avatar', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addAvatar));
+routerForm.post('/add-background', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addBackground));
 routerForm.post('/upload-cover', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadCover));
 routerForm.post('/delete-cover', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteCover));
 routerForm.post('/delete-avatar', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteAvatar));
 routerForm.post('/create-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.createForm));
 routerForm.post('/update-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateForm));
+routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToTitle));
+routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToTitle));
+routerForm.post('/set-title-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setTitleForm));
+routerForm.post('/update-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateInputItem));
+routerForm.post('/delete-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteInputItem));
+routerForm.post('/update-input-item-setting', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateSettingInput));
 exports.default = routerForm;

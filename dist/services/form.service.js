@@ -48,8 +48,128 @@ class FormService {
     static async updateForm(req, res, next) {
         const { user } = req;
         const { form } = req.body;
-        console.log({ body: req.body });
-        // const form_state = form.form_state
+        console.log({ body: JSON.stringify(form) });
+        const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form._id) };
+        const formUpdateDoc = {
+            $set: {
+                form_title: form.form_title,
+                form_setting_default: form.form_setting_default,
+                form_background: form.form_background,
+                form_state: form.form_state,
+                form_inputs: form.form_inputs
+            }
+        };
+        const formOptionDoc = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
+        console.log({ formUpdateDoc: JSON.stringify(formUpdate) });
+        if (!formUpdate)
+            throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
+        return { form: formUpdate };
+    }
+    static async addAvatar(req, res, next) {
+        const { form } = req.body;
+        const { user } = req;
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
+        const formUpdateDoc = { $set: { form_avatar_state: true } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate };
+    }
+    static async addBackground(req, res, next) {
+        const { form } = req.body;
+        const { user } = req;
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
+        const formUpdateDoc = { $set: { form_background_state: true } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate };
+    }
+    static async uploadAvatar(req, res, next) {
+        const file = req.file;
+        const { form_id } = req.body;
+        const { user } = req;
+        if (!file)
+            throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
+        const folder = `tally-form-project/users/${user?.id}/form_id/avatar`;
+        const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
+        const form_avatar = { form_avatar_url: result.secure_url, form_avatar_publicId: result.public_id };
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
+        const formUpdateDoc = { $set: { form_avatar, form_avatar_state: true } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate };
+    }
+    static async deleteAvatar(req, res, next) {
+        const { form_id } = req.body;
+        const { user } = req;
+        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        if (foundForm && foundForm.form_avatar) {
+            const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_avatar.form_avatar_publicId);
+        }
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
+        const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate?.form_avatar };
+    }
+    static async uploadCover(req, res, next) {
+        const file = req.file;
+        const { form_id } = req.body;
+        const { user } = req;
+        if (!file)
+            throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
+        const folder = `tally-form-project/users/${user?.id}/form_id/cover`;
+        const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
+        const form_cover = { form_background_iamge_url: result.secure_url, form_backround_image_publicId: result.public_id };
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
+        const formUpdateDoc = { $set: { form_background: form_cover, form_background_state: true } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate?.form_background };
+    }
+    static async deleteCover(req, res, next) {
+        const { form_id } = req.body;
+        const { user } = req;
+        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        if (foundForm && foundForm.form_background) {
+            const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_background.form_backround_image_publicId);
+        }
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
+        const formUpdateDoc = { $unset: { form_background: 1 }, $set: { form_background_state: false } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate };
+    }
+    static async addInputToTitle(req, res, next) {
+        const { form } = req.body;
+        const { user } = req;
+        const updateFormQuery = { form_owner: user?._id, _id: form._id };
+        const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } };
+        const updateFormOption = { new: true, upsert: true };
+        const updateFormDoc = await form_model_1.default.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption);
+        return { form: updateFormDoc };
+    }
+    static async setTitleForm(req, res, next) {
+        const { form, title } = req.body;
+        const { user } = req;
+        const updateFormQuery = { form_owner: user?._id, _id: form._id };
+        const updateFormUpdate = { $set: { form_title: title } };
+        const updateFormOption = { new: true, upsert: true };
+        const updateFormDoc = await form_model_1.default.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption);
+        return { form: updateFormDoc };
+    }
+    static async updateInputItem(req, res, next) {
+        const { form, newInput } = req.body;
+        const { _id } = newInput;
+        const formQuery = { _id: form._id, 'form_inputs._id': new mongoose_1.Types.ObjectId(_id) };
+        const formUpdate = { 'form_inputs.$': newInput };
+        const formOption = { new: true, upsert: true };
+        const formUpdateDoc = await form_model_1.default.findOneAndUpdate(formQuery, formUpdate, formOption);
+        return { form: formUpdateDoc };
+    }
+    static async deleteInputItem(req, res, next) {
+        const { user } = req;
+        const { form } = req.body;
         const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form._id) };
         const formUpdateDoc = {
             $set: {
@@ -66,62 +186,21 @@ class FormService {
             throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
         return { form: formUpdate };
     }
-    static async uploadAvatar(req, res, next) {
-        const file = req.file;
-        const { form_id } = req.body;
+    static async updateSettingInput(req, res, next) {
         const { user } = req;
-        if (!file)
-            throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
-        const folder = `tally-form-project/users/${user?.id}/form_id/avatar`;
-        const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
-        const form_avatar = { form_avatar_url: result.secure_url, form_avatar_publicId: result.public_id };
-        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
-        const formUpdateDoc = { $set: { form_avatar } };
-        const formOptions = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate };
-    }
-    static async deleteAvatar(req, res, next) {
-        const { form_id } = req.body;
-        const { user } = req;
-        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
-        if (!foundForm || !foundForm.form_avatar) {
-            throw new response_error_1.BadRequestError({ metadata: 'Không tìm thấy thông tin' });
-        }
-        const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_avatar.form_avatar_publicId);
-        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
-        const formUpdateDoc = { $unset: { form_avatar: 1 } };
-        const formOptions = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate?.form_avatar };
-    }
-    static async uploadCover(req, res, next) {
-        const file = req.file;
-        const { form_id } = req.body;
-        const { user } = req;
-        if (!file)
-            throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
-        const folder = `tally-form-project/users/${user?.id}/form_id/cover`;
-        const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
-        const form_cover = { form_background_iamge_url: result.secure_url, form_backround_image_publicId: result.public_id };
-        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
-        const formUpdateDoc = { $set: { form_background: form_cover } };
-        const formOptions = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate?.form_background };
-    }
-    static async deleteCover(req, res, next) {
-        const { form_id } = req.body;
-        const { user } = req;
-        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
-        if (!foundForm || !foundForm.form_background) {
-            throw new response_error_1.BadRequestError({ metadata: 'Không tìm thấy thông tin' });
-        }
-        const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_background.form_backround_image_publicId);
-        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
-        const formUpdateDoc = { $unset: { form_avatar: 1 } };
-        const formOptions = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        const { form, input_id, input_id_setting } = req.body;
+        console.log({ body: JSON.stringify(form) });
+        const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': input_id };
+        const formUpdateDoc = {
+            $set: {
+                'form_inputs.$.setting': input_id_setting
+            }
+        };
+        const formOptionDoc = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
+        console.log({ formUpdateDoc: JSON.stringify(formUpdate) });
+        if (!formUpdate)
+            throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
         return { form: formUpdate };
     }
 }

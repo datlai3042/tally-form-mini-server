@@ -57,19 +57,21 @@ namespace InputCore {
             input_heading: string
             input_heading_type: 'LABEL' | 'TITLE'
             input_error: string
+            _id: string
       }
 
+      type InputSettingTextCommon = {
+            require: boolean
+            placeholder?: string
+            minLength: number
+            maxLength: number
+            input_error?: string
+      }
       namespace InputEmail {
             export interface InputTypeEmail extends InputCore.InputCommon {
                   type: 'EMAIL'
                   input_value: string
-                  setting?: {
-                        require: boolean
-                        placeholder?: string
-                        minLength1: boolean
-                        maxLength1: boolean
-                        input_error?: string
-                  }
+                  setting?: InputCore.InputSettingTextCommon
             }
 
             export interface InputEmailSender extends InputTypeEmail {
@@ -133,7 +135,7 @@ namespace InputCore {
       }
 
       namespace InputImage {
-            export type InputTypeImage = {
+            export type InputTypeImage = InputCore.InputCommon & {
                   type: 'IMAGE'
                   caption: string
                   alt: string

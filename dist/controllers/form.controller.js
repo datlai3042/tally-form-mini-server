@@ -36,5 +36,26 @@ class FormController {
     static async deleteCover(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.deleteCover(req, res, next) }).send(res);
     }
+    static async addInputToTitle(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.addInputToTitle(req, res, next) }).send(res);
+    }
+    static async setTitleForm(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.setTitleForm(req, res, next) }).send(res);
+    }
+    static async updateInputItem(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.updateInputItem(req, res, next) }).send(res);
+    }
+    static async deleteInputItem(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.deleteInputItem(req, res, next) }).send(res);
+    }
+    static async updateSettingInput(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.updateSettingInput(req, res, next) }).send(res);
+    }
+    static async addAvatar(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.addAvatar(req, res, next) }).send(res);
+    }
+    static async addBackground(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.addBackground(req, res, next) }).send(res);
+    }
 }
 exports.default = FormController;

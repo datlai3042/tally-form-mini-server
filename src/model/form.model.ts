@@ -19,6 +19,8 @@ export type FormSchema = {
             form_backround_image_publicId: string
       }
 
+      form_avatar_state: boolean
+      form_background_state: boolean
       form_avatar?: {
             form_avatar_url: string
             form_avatar_publicId: string
@@ -48,6 +50,9 @@ export const formSchema = new Schema<FormSchemaDoc>(
                         form_backround_image_publicId: String
                   }
             },
+            form_avatar_state: { type: Boolean, default: false },
+            form_background_state: { type: Boolean, default: false },
+
             form_state: { type: String, enum: ['isDraff', 'isPublic', 'isPrivate'], default: 'isDraff' },
             form_setting_default: {
                   type: {

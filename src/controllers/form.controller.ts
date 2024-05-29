@@ -43,6 +43,34 @@ class FormController {
       static async deleteCover(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.deleteCover(req, res, next) }).send(res)
       }
+
+      static async addInputToTitle(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.addInputToTitle(req, res, next) }).send(res)
+      }
+
+      static async setTitleForm(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.setTitleForm(req, res, next) }).send(res)
+      }
+
+      static async updateInputItem(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.updateInputItem(req, res, next) }).send(res)
+      }
+
+      static async deleteInputItem(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.deleteInputItem(req, res, next) }).send(res)
+      }
+
+      static async updateSettingInput(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.updateSettingInput(req, res, next) }).send(res)
+      }
+
+      static async addAvatar(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.addAvatar(req, res, next) }).send(res)
+      }
+
+      static async addBackground(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.addBackground(req, res, next) }).send(res)
+      }
 }
 
 export default FormController

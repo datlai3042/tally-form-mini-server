@@ -15,6 +15,8 @@ exports.formSchema = new mongoose_1.Schema({
             form_backround_image_publicId: String
         }
     },
+    form_avatar_state: { type: Boolean, default: false },
+    form_background_state: { type: Boolean, default: false },
     form_state: { type: String, enum: ['isDraff', 'isPublic', 'isPrivate'], default: 'isDraff' },
     form_setting_default: {
         type: {
