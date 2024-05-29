@@ -69,7 +69,7 @@ class AuthService {
             const { email, password } = req.body
 
             const foundUser = await userModel.findOne({ user_email: email })
-            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy user' })
+            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy thông tin tài khoản' })
 
             const checkPassword = compare(password, foundUser?.user_password)
             if (!checkPassword) throw new AuthFailedError({ metadata: 'Something wrongs...' })

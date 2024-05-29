@@ -51,7 +51,7 @@ class AuthService {
         const { email, password } = req.body;
         const foundUser = await user_model_1.default.findOne({ user_email: email });
         if (!foundUser)
-            throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy user' });
+            throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy thông tin tài khoản' });
         const checkPassword = (0, bcrypt_utils_1.compare)(password, foundUser?.user_password);
         if (!checkPassword)
             throw new response_error_1.AuthFailedError({ metadata: 'Something wrongs...' });
