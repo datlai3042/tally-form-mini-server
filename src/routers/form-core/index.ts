@@ -5,7 +5,7 @@ import { asyncHandler } from '~/helpers/asyncHandler'
 import authentication from '~/middlewares/authentication'
 
 const routerForm = Router()
-routerForm.get('/find-form-guess', asyncHandler(FormController.findFormGuess))
+routerForm.get('/get-form-guess', asyncHandler(FormController.getFormGuess))
 
 routerForm.use(authentication)
 routerForm.get('/get-forms', asyncHandler(FormController.getForms))

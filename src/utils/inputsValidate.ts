@@ -5,11 +5,11 @@ export class InputHelper {
       static typeNumber(input: InputCore.InputForm, errors: string[] = []) {}
       static typeEmail(input: InputCore.InputEmail.InputTypeEmail, errors: string[] = []) {
             if (InputValidate.typeEmail(input)) return input
-            return errors.push(input.input_error)
+            return errors.push(input.setting?.input_error as string)
       }
       static typeDate(input: InputCore.InputDate.InputTypeDate, errors: string[]) {
             if (InputValidate.typeDate(input)) return input
-            return errors.push(input.input_error)
+            // return errors.push(input.)
       }
 }
 

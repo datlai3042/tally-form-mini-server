@@ -20,8 +20,8 @@ class FormController {
             return new OK({ metadata: await FormService.findFormUpdate(req, res, next) }).send(res)
       }
 
-      static async findFormGuess(req: CustomRequest, res: Response, next: NextFunction) {
-            return new OK({ metadata: await FormService.findFormGuess(req, res, next) }).send(res)
+      static async getFormGuess(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.getFormGuess(req, res, next) }).send(res)
       }
 
       static async updateForm(req: CustomRequest, res: Response, next: NextFunction) {

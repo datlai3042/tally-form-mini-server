@@ -26,7 +26,7 @@ class FormService {
         const { form_id } = req.query;
         console.log({ form_id });
         const form = await form_model_1.default.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(form_id) }, {}, { upsert: true, new: true });
-        return { form };
+        return { form: form ? form : null };
     }
     static async findFormUpdate(req, res, next) {
         const { user } = req;
@@ -37,13 +37,12 @@ class FormService {
             throw new response_error_1.BadRequestError({ metadata: 'create form failure' });
         return { form };
     }
-    static async findFormGuess(req, res, next) {
-        const { form_id } = req.body;
+    static async getFormGuess(req, res, next) {
+        const { form_id } = req.query;
+        console.log({ form_id });
         const formQuery = { _id: new mongoose_1.Types.ObjectId(form_id) };
         const form = await form_model_1.default.findOne(formQuery);
-        if (!form)
-            throw new response_error_1.BadRequestError({ metadata: 'create form failure' });
-        return { form };
+        return { form: form ? form : null };
     }
     static async updateForm(req, res, next) {
         const { user } = req;
@@ -55,8 +54,12 @@ class FormService {
                 form_title: form.form_title,
                 form_setting_default: form.form_setting_default,
                 form_background: form.form_background,
+                form_avatar: form.form_avatar,
                 form_state: form.form_state,
-                form_inputs: form.form_inputs
+                form_inputs: form.form_inputs,
+                form_title_size: form.form_title_size,
+                form_title_color: form.form_title_color,
+                form_title_style: form.form_title_style
             }
         };
         const formOptionDoc = { new: true, upsert: true };
@@ -70,7 +73,7 @@ class FormService {
         const { form } = req.body;
         const { user } = req;
         const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
-        const formUpdateDoc = { $set: { form_avatar_state: true } };
+        const formUpdateDoc = { $set: { form_avatar_state: true, form_avatar: { mode: 'circle', position: 'left' } } };
         const formOptions = { new: true, upsert: true };
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
         return { form: formUpdate };
@@ -110,7 +113,7 @@ class FormService {
         const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } };
         const formOptions = { new: true, upsert: true };
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate?.form_avatar };
+        return { form: formUpdate };
     }
     static async uploadCover(req, res, next) {
         const file = req.file;
@@ -125,7 +128,7 @@ class FormService {
         const formUpdateDoc = { $set: { form_background: form_cover, form_background_state: true } };
         const formOptions = { new: true, upsert: true };
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate?.form_background };
+        return { form: formUpdate };
     }
     static async deleteCover(req, res, next) {
         const { form_id } = req.body;

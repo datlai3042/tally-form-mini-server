@@ -9,7 +9,7 @@ const form_controller_1 = __importDefault(require("../../controllers/form.contro
 const asyncHandler_1 = require("../../helpers/asyncHandler");
 const authentication_1 = __importDefault(require("../../middlewares/authentication"));
 const routerForm = (0, express_1.Router)();
-routerForm.get('/find-form-guess', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.findFormGuess));
+routerForm.get('/get-form-guess', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.getFormGuess));
 routerForm.use(authentication_1.default);
 routerForm.get('/get-forms', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.getForms));
 routerForm.get('/get-form-id', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.getFormId));

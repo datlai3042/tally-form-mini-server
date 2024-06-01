@@ -26,7 +26,7 @@ class FormService {
             console.log({ form_id })
             const form = await formModel.findOneAndUpdate({ _id: new Types.ObjectId(form_id) }, {}, { upsert: true, new: true })
 
-            return { form }
+            return { form: form ? form : null }
       }
 
       static async findFormUpdate(req: CustomRequest<FormEdit.FindFormParams>, res: Response, next: NextFunction) {
@@ -38,12 +38,12 @@ class FormService {
             return { form }
       }
 
-      static async findFormGuess(req: CustomRequest<FormEdit.FindFormParams>, res: Response, next: NextFunction) {
-            const { form_id } = req.body
+      static async getFormGuess(req: CustomRequest<object, { form_id: string }>, res: Response, next: NextFunction) {
+            const { form_id } = req.query
+            console.log({ form_id })
             const formQuery = { _id: new Types.ObjectId(form_id) }
             const form = await formModel.findOne(formQuery)
-            if (!form) throw new BadRequestError({ metadata: 'create form failure' })
-            return { form }
+            return { form: form ? form : null }
       }
 
       static async updateForm(req: CustomRequest<FormEdit.FormEditParams>, res: Response, next: NextFunction) {
@@ -57,8 +57,12 @@ class FormService {
                         form_title: form.form_title,
                         form_setting_default: form.form_setting_default,
                         form_background: form.form_background,
+                        form_avatar: form.form_avatar,
                         form_state: form.form_state,
-                        form_inputs: form.form_inputs
+                        form_inputs: form.form_inputs,
+                        form_title_size: form.form_title_size,
+                        form_title_color: form.form_title_color,
+                        form_title_style: form.form_title_style
                   }
             }
             const formOptionDoc = { new: true, upsert: true }
@@ -77,7 +81,7 @@ class FormService {
             const { user } = req
 
             const formQueryDoc = { _id: new Types.ObjectId(form._id), form_owner: user?._id }
-            const formUpdateDoc = { $set: { form_avatar_state: true } }
+            const formUpdateDoc = { $set: { form_avatar_state: true, form_avatar: { mode: 'circle', position: 'left' } } }
             const formOptions = { new: true, upsert: true }
 
             const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions)
@@ -132,7 +136,7 @@ class FormService {
 
             const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions)
 
-            return { form: formUpdate?.form_avatar }
+            return { form: formUpdate }
       }
 
       static async uploadCover(req: CustomRequest<{ form_id: string }>, res: Response, next: NextFunction) {
@@ -150,7 +154,7 @@ class FormService {
 
             const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions)
 
-            return { form: formUpdate?.form_background }
+            return { form: formUpdate }
       }
 
       static async deleteCover(req: CustomRequest<{ form_id: string }>, res: Response, next: NextFunction) {

@@ -18,8 +18,8 @@ class FormController {
     static async findFormUpdate(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.findFormUpdate(req, res, next) }).send(res);
     }
-    static async findFormGuess(req, res, next) {
-        return new response_success_1.OK({ metadata: await form_service_1.default.findFormGuess(req, res, next) }).send(res);
+    static async getFormGuess(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.getFormGuess(req, res, next) }).send(res);
     }
     static async updateForm(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.updateForm(req, res, next) }).send(res);

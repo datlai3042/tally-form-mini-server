@@ -7,12 +7,12 @@ class InputHelper {
     static typeEmail(input, errors = []) {
         if (InputValidate.typeEmail(input))
             return input;
-        return errors.push(input.input_error);
+        return errors.push(input.setting?.input_error);
     }
     static typeDate(input, errors) {
         if (InputValidate.typeDate(input))
             return input;
-        return errors.push(input.input_error);
+        // return errors.push(input.)
     }
 }
 exports.InputHelper = InputHelper;
