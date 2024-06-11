@@ -5,13 +5,32 @@ const mongoose_1 = require("mongoose");
 const input_model_1 = require("./input.model");
 const DOCUMENT_NAME = 'Form';
 const COLLECTION_NAME = 'forms';
+const formTitleSubSchema = new mongoose_1.Schema({
+    type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
+    value: { type: String, default: '' },
+    write: { type: Boolean, default: false }
+});
 exports.formSchema = new mongoose_1.Schema({
     form_owner: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    form_title: { type: String },
-    form_title_color: { type: String },
-    form_title_size: { type: Number },
-    form_title_style: { type: String, default: 'normal' },
     form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String, position: String, mode: String } },
+    form_title: {
+        type: {
+            form_title_color: { type: String },
+            form_title_size: { type: Number },
+            form_title_style: { type: String },
+            form_title_value: { type: String },
+            form_title_sub: { type: [formTitleSubSchema] },
+            form_title_mode_image: { type: String }
+        },
+        default: {
+            form_title_color: '#2568aa',
+            form_title_size: 40,
+            form_title_style: 'normal',
+            form_title_value: '',
+            form_title_mode_image: 'Normal',
+            form_title_sub: []
+        }
+    },
     form_background: {
         type: {
             form_background_iamge_url: String,

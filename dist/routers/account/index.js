@@ -10,7 +10,7 @@ const asyncHandler_1 = require("../../helpers/asyncHandler");
 const authentication_1 = __importDefault(require("../../middlewares/authentication"));
 const routerAccount = (0, express_1.Router)();
 routerAccount.use(authentication_1.default);
-routerAccount.post('/update-avatar', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updateAvatar));
+routerAccount.post('/upload-avatar', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updateAvatar));
 routerAccount.post('/update-email', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updateEmail));
 routerAccount.post('/update-password', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.updatePassword));
 routerAccount.get('/me', (0, asyncHandler_1.asyncHandler)(account_controller_1.default.me));

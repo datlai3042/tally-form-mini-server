@@ -16,6 +16,10 @@ class FormController {
             return new CREATE({ metadata: await FormService.getFormId(req, res, next) }).send(res)
       }
 
+      static async deleteFormId(req: CustomRequest, res: Response, next: NextFunction) {
+            return new CREATE({ metadata: await FormService.deleteFormId(req, res, next) }).send(res)
+      }
+
       static async findFormUpdate(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.findFormUpdate(req, res, next) }).send(res)
       }
@@ -24,8 +28,20 @@ class FormController {
             return new OK({ metadata: await FormService.getFormGuess(req, res, next) }).send(res)
       }
 
+      static async setModeImageForm(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.setModeImageForm(req, res, next) }).send(res)
+      }
+
       static async updateForm(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.updateForm(req, res, next) }).send(res)
+      }
+
+      static async updateTitleSub(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.updateTitleSub(req, res, next) }).send(res)
+      }
+
+      static async uploadTitleImage(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.uploadTitleImage(req, res, next) }).send(res)
       }
 
       static async uploadAvatar(req: CustomRequest, res: Response, next: NextFunction) {

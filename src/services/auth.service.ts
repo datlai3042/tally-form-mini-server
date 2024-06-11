@@ -108,7 +108,13 @@ class AuthService {
                   await keyManagerModel.findOneAndDelete({ user_id: user._id })
                   return { message: 'Token hết hạn và đẵ buộc phải logout', force }
             }
+
             await keyManagerModel.findOneAndDelete({ user_id: user._id })
+
+            res.clearCookie('client_id')
+            res.clearCookie('refresh_token')
+            res.clearCookie('code_verify_token')
+            res.clearCookie('access_token')
             return { message: 'Logout thành công' }
       }
 

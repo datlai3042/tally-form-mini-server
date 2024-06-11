@@ -7,7 +7,7 @@ import { UserDocument } from '~/model/user.model'
 import { CustomRequest, Token } from '~/type'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Token.Key): Token.PairToken => {
-      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '20m' })
+      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '10m' })
       const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '30m' })
       if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
@@ -61,7 +61,7 @@ export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, 
             }
 
             const payload = decode as Token.PayloadJWT
-            if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
+            if (payload._id.toString() !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore
       })
@@ -80,7 +80,7 @@ export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req,
             if (keyStore.refresh_token_used.includes(token)) {
                   return next(new ForbiddenError({ metadata: 'Token đã được sử dụng' }))
             }
-            if (payload._id !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
+            if (payload._id.toString() !== client_id) return next(new BadRequestError({ metadata: 'Token không thuộc về user' }))
             req.user = user
             req.keyStore = keyStore
             req.refresh_token = token

@@ -8,7 +8,7 @@ const routerAccount = Router()
 
 routerAccount.use(authentication)
 
-routerAccount.post('/update-avatar', upload.single('file'), asyncHandler(AccountController.updateAvatar))
+routerAccount.post('/upload-avatar', upload.single('file'), asyncHandler(AccountController.updateAvatar))
 routerAccount.post('/update-email', asyncHandler(AccountController.updateEmail))
 routerAccount.post('/update-password', asyncHandler(AccountController.updatePassword))
 

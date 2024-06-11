@@ -28,6 +28,12 @@ class FormService {
         const form = await form_model_1.default.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(form_id) }, {}, { upsert: true, new: true });
         return { form: form ? form : null };
     }
+    static async deleteFormId(req, res, next) {
+        const { form_id } = req.query;
+        console.log({ form_id });
+        const form = await form_model_1.default.findOneAndDelete({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        return { form: form ? form : null };
+    }
     static async findFormUpdate(req, res, next) {
         const { user } = req;
         const { form_id } = req.body;
@@ -44,6 +50,22 @@ class FormService {
         const form = await form_model_1.default.findOne(formQuery);
         return { form: form ? form : null };
     }
+    static async updateTitleSub(req, res, next) {
+        const { user } = req;
+        const { form_title_sub, form_id } = req.body;
+        const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form_id) };
+        const formUpdateDoc = {
+            $set: {
+                'form_title.form_title_sub': form_title_sub
+            }
+        };
+        const formOptionDoc = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
+        console.log({ formUpdateDoc: JSON.stringify(formUpdate) });
+        if (!formUpdate)
+            throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
+        return { form: formUpdate };
+    }
     static async updateForm(req, res, next) {
         const { user } = req;
         const { form } = req.body;
@@ -56,10 +78,7 @@ class FormService {
                 form_background: form.form_background,
                 form_avatar: form.form_avatar,
                 form_state: form.form_state,
-                form_inputs: form.form_inputs,
-                form_title_size: form.form_title_size,
-                form_title_color: form.form_title_color,
-                form_title_style: form.form_title_style
+                form_inputs: form.form_inputs
             }
         };
         const formOptionDoc = { new: true, upsert: true };
@@ -87,6 +106,34 @@ class FormService {
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
         return { form: formUpdate };
     }
+    static async uploadTitleImage(req, res, next) {
+        const file = req.file;
+        const { form_id, titleSubId } = req.body;
+        const { user } = req;
+        if (!file)
+            throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
+        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        if (!form)
+            throw new response_error_1.BadRequestError({ metadata: 'form_id không hợp lệ' });
+        const folder = `tally-form-project/users/${user?.id}/${form._id}/title/images`;
+        const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
+        const titleSubItem = form.form_title?.form_title_sub.map((ft) => {
+            console.log(ft._id, titleSubId);
+            if (new mongoose_1.Types.ObjectId(ft._id).toString() === titleSubId) {
+                console.log(ft._id === titleSubId, titleSubId);
+                ft.value = result.secure_url;
+                ft.write = true;
+                return ft;
+            }
+            return ft;
+        });
+        console.log({ titleSubItem });
+        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
+        const formUpdateDoc = { $set: { 'form_title.form_title_sub': titleSubItem } };
+        const formOptions = { new: true, upsert: true };
+        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+        return { form: formUpdate };
+    }
     static async uploadAvatar(req, res, next) {
         const file = req.file;
         const { form_id } = req.body;
@@ -103,11 +150,18 @@ class FormService {
         return { form: formUpdate };
     }
     static async deleteAvatar(req, res, next) {
-        const { form_id } = req.body;
+        const { form_id, mode } = req.body;
         const { user } = req;
         const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
-        if (foundForm && foundForm.form_avatar) {
-            const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_avatar.form_avatar_publicId);
+        if (mode === 'Image') {
+            if (foundForm && foundForm.form_avatar) {
+                const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_avatar.form_avatar_publicId);
+            }
+            const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
+            const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } };
+            const formOptions = { new: true, upsert: true };
+            const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
+            return { form: formUpdate };
         }
         const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
         const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } };
@@ -146,6 +200,7 @@ class FormService {
     static async addInputToTitle(req, res, next) {
         const { form } = req.body;
         const { user } = req;
+        console.log({ form });
         const updateFormQuery = { form_owner: user?._id, _id: form._id };
         const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } };
         const updateFormOption = { new: true, upsert: true };
@@ -153,10 +208,19 @@ class FormService {
         return { form: updateFormDoc };
     }
     static async setTitleForm(req, res, next) {
-        const { form, title } = req.body;
+        const { form } = req.body;
         const { user } = req;
         const updateFormQuery = { form_owner: user?._id, _id: form._id };
-        const updateFormUpdate = { $set: { form_title: title } };
+        const updateFormUpdate = { $set: { form_title: form.form_title } };
+        const updateFormOption = { new: true, upsert: true };
+        const updateFormDoc = await form_model_1.default.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption);
+        return { form: updateFormDoc };
+    }
+    static async setModeImageForm(req, res, next) {
+        const { form_id, mode } = req.body;
+        const { user } = req;
+        const updateFormQuery = { form_owner: user?._id, _id: form_id };
+        const updateFormUpdate = { $set: { 'form_title.form_title_mode_image': mode } };
         const updateFormOption = { new: true, upsert: true };
         const updateFormDoc = await form_model_1.default.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption);
         return { form: updateFormDoc };

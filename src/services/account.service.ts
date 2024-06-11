@@ -26,7 +26,7 @@ class AccountService {
 
             const userQueryDoc = { _id: user?._id }
             const userUpdateDoc = {
-                  $set: { avatar: { secure_url: result.secure_url, public_id: result.public_id, date_update: Date.now() } }
+                  $set: { user_avatar_current: { secure_url: result.secure_url, public_id: result.public_id, date: Date.now() } }
             }
             const userOptionDoc = { new: true, upsert: true }
 

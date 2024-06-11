@@ -13,6 +13,7 @@ routerForm.get('/get-form-guess', (0, asyncHandler_1.asyncHandler)(form_controll
 routerForm.use(authentication_1.default);
 routerForm.get('/get-forms', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.getForms));
 routerForm.get('/get-form-id', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.getFormId));
+routerForm.get('/delete-form-id', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteFormId));
 routerForm.get('/find-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.findFormUpdate));
 routerForm.post('/create-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.createForm));
 routerForm.post('/upload-avatar', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadAvatar));
@@ -23,8 +24,10 @@ routerForm.post('/delete-cover', (0, asyncHandler_1.asyncHandler)(form_controlle
 routerForm.post('/delete-avatar', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteAvatar));
 routerForm.post('/create-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.createForm));
 routerForm.post('/update-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateForm));
+routerForm.post('/update-form-title-mode-image', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setModeImageForm));
 routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToTitle));
-routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToTitle));
+routerForm.post('/update-sub-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateTitleSub));
+routerForm.post('/upload-sub-title-image', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadTitleImage));
 routerForm.post('/set-title-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setTitleForm));
 routerForm.post('/update-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateInputItem));
 routerForm.post('/delete-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteInputItem));

@@ -8,7 +8,7 @@ const crypto_1 = require("crypto");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_error_1 = require("../Core/response.error");
 const generatePaidToken = (payload, key) => {
-    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '20m' });
+    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '10m' });
     const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '30m' });
     if (!access_token || !refresh_token)
         throw new response_error_1.ResponseError({ metadata: 'Lỗi do tạo key' });
@@ -50,7 +50,7 @@ const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, ne
             return next(new response_error_1.AuthFailedError({ metadata: 'Token không đúng' }));
         }
         const payload = decode;
-        if (payload._id !== client_id)
+        if (payload._id.toString() !== client_id)
             return next(new response_error_1.BadRequestError({ metadata: 'Token không thuộc về user' }));
         req.user = user;
         req.keyStore = keyStore;
@@ -68,7 +68,7 @@ const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, n
         if (keyStore.refresh_token_used.includes(token)) {
             return next(new response_error_1.ForbiddenError({ metadata: 'Token đã được sử dụng' }));
         }
-        if (payload._id !== client_id)
+        if (payload._id.toString() !== client_id)
             return next(new response_error_1.BadRequestError({ metadata: 'Token không thuộc về user' }));
         req.user = user;
         req.keyStore = keyStore;

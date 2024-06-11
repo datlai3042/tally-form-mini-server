@@ -1,8 +1,15 @@
 import { Request } from 'express'
 import { UserDocument } from './model/user.model'
 import { KeyManagerDocument } from './model/keyManager.model'
-import { ObjectId } from 'mongoose'
+import { ObjectId, Types } from 'mongoose'
 import { FormSchema } from './model/form.model'
+
+export declare global {
+      declare module globalThis {
+            // eslint-disable-next-line no-var
+            var _io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
+      }
+}
 
 export interface CustomRequest<Body = any, Query = any> extends Request {
       user?: UserDocument
@@ -172,5 +179,29 @@ namespace FormEdit {
 
       export type FindFormParams = {
             form_id: string
+      }
+}
+
+namespace Form {
+      namespace FormAnswer {
+            type InputFormRequire = { _id?: string; title?: string; checkRequire: boolean }
+            type InputFormData = {
+                  _id: Types.ObjectId | string
+                  title: string
+                  mode: 'Require' | 'Optional'
+                  value: string
+                  type: 'TEXT' | 'EMAIL' | 'IMAGE'
+            }
+
+            type TFormAnswer = {
+                  form_id: Types.ObjectId
+                  answers: InputFormData[]
+            }
+
+            type formAnswerOrigin = {
+                  form_id: Types.ObjectId
+                  owner_id: Types.ObjectId
+                  reports: TFormAnswer[]
+            }
       }
 }

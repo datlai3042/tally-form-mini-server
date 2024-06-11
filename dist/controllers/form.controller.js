@@ -15,14 +15,26 @@ class FormController {
     static async getFormId(req, res, next) {
         return new response_success_1.CREATE({ metadata: await form_service_1.default.getFormId(req, res, next) }).send(res);
     }
+    static async deleteFormId(req, res, next) {
+        return new response_success_1.CREATE({ metadata: await form_service_1.default.deleteFormId(req, res, next) }).send(res);
+    }
     static async findFormUpdate(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.findFormUpdate(req, res, next) }).send(res);
     }
     static async getFormGuess(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.getFormGuess(req, res, next) }).send(res);
     }
+    static async setModeImageForm(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.setModeImageForm(req, res, next) }).send(res);
+    }
     static async updateForm(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.updateForm(req, res, next) }).send(res);
+    }
+    static async updateTitleSub(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.updateTitleSub(req, res, next) }).send(res);
+    }
+    static async uploadTitleImage(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.uploadTitleImage(req, res, next) }).send(res);
     }
     static async uploadAvatar(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.uploadAvatar(req, res, next) }).send(res);

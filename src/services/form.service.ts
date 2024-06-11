@@ -2,8 +2,8 @@ import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloudinary.config'
-import formModel, { FormSchema } from '~/model/form.model'
-import { CustomRequest, FormEdit, Http, InputCore } from '~/type'
+import formModel, { FormSchema, FormTitleSub } from '~/model/form.model'
+import { CustomRequest, Form, FormEdit, Http, InputCore } from '~/type'
 import uploadToCloudinary from '~/utils/upload.cloudinary'
 
 class FormService {
@@ -29,6 +29,14 @@ class FormService {
             return { form: form ? form : null }
       }
 
+      static async deleteFormId(req: CustomRequest<object, { form_id: string }>, res: Response, next: NextFunction) {
+            const { form_id } = req.query
+            console.log({ form_id })
+            const form = await formModel.findOneAndDelete({ _id: new Types.ObjectId(form_id) })
+
+            return { form: form ? form : null }
+      }
+
       static async findFormUpdate(req: CustomRequest<FormEdit.FindFormParams>, res: Response, next: NextFunction) {
             const { user } = req
             const { form_id } = req.body
@@ -46,6 +54,26 @@ class FormService {
             return { form: form ? form : null }
       }
 
+      static async updateTitleSub(req: CustomRequest<{ form_title_sub: FormTitleSub[]; form_id: Types.ObjectId }>, res: Response, next: NextFunction) {
+            const { user } = req
+            const { form_title_sub, form_id } = req.body
+            const formQueryDoc = { form_owner: user?._id, _id: new Types.ObjectId(form_id) }
+
+            const formUpdateDoc = {
+                  $set: {
+                        'form_title.form_title_sub': form_title_sub
+                  }
+            }
+            const formOptionDoc = { new: true, upsert: true }
+
+            const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc)
+
+            console.log({ formUpdateDoc: JSON.stringify(formUpdate) })
+
+            if (!formUpdate) throw new BadRequestError({ metadata: 'update form failure' })
+
+            return { form: formUpdate }
+      }
       static async updateForm(req: CustomRequest<FormEdit.FormEditParams>, res: Response, next: NextFunction) {
             const { user } = req
             const { form } = req.body
@@ -59,10 +87,7 @@ class FormService {
                         form_background: form.form_background,
                         form_avatar: form.form_avatar,
                         form_state: form.form_state,
-                        form_inputs: form.form_inputs,
-                        form_title_size: form.form_title_size,
-                        form_title_color: form.form_title_color,
-                        form_title_style: form.form_title_style
+                        form_inputs: form.form_inputs
                   }
             }
             const formOptionDoc = { new: true, upsert: true }
@@ -101,6 +126,39 @@ class FormService {
 
             return { form: formUpdate }
       }
+      static async uploadTitleImage(req: CustomRequest<{ form_id: string; titleSubId: string }>, res: Response, next: NextFunction) {
+            const file = req.file
+            const { form_id, titleSubId } = req.body
+            const { user } = req
+            if (!file) throw new BadRequestError({ metadata: 'Missing File' })
+
+            const form = await formModel.findOne({ _id: new Types.ObjectId(form_id) })
+            if (!form) throw new BadRequestError({ metadata: 'form_id không hợp lệ' })
+
+            const folder = `tally-form-project/users/${user?.id}/${form._id}/title/images`
+            const result = await uploadToCloudinary(req?.file as Express.Multer.File, folder)
+
+            const titleSubItem = form.form_title?.form_title_sub.map((ft) => {
+                  console.log(ft._id, titleSubId)
+                  if (new Types.ObjectId(ft._id).toString() === titleSubId) {
+                        console.log(ft._id === titleSubId, titleSubId)
+                        ft.value = result.secure_url
+                        ft.write = true
+                        return ft
+                  }
+                  return ft
+            })
+
+            console.log({ titleSubItem })
+
+            const formQueryDoc = { _id: new Types.ObjectId(form._id), form_owner: user?._id }
+            const formUpdateDoc = { $set: { 'form_title.form_title_sub': titleSubItem } }
+            const formOptions = { new: true, upsert: true }
+
+            const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions)
+
+            return { form: formUpdate }
+      }
 
       static async uploadAvatar(req: CustomRequest<{ form_id: string }>, res: Response, next: NextFunction) {
             const file = req.file
@@ -120,14 +178,24 @@ class FormService {
             return { form: formUpdate }
       }
 
-      static async deleteAvatar(req: CustomRequest<{ form_id: string }>, res: Response, next: NextFunction) {
-            const { form_id } = req.body
+      static async deleteAvatar(req: CustomRequest<{ form_id: string; mode: 'Image' | 'NoFile' }>, res: Response, next: NextFunction) {
+            const { form_id, mode } = req.body
             const { user } = req
 
             const foundForm = await formModel.findOne({ _id: new Types.ObjectId(form_id) })
 
-            if (foundForm && foundForm.form_avatar) {
-                  const deleteAvatar = await cloudinary.uploader.destroy(foundForm.form_avatar.form_avatar_publicId)
+            if (mode === 'Image') {
+                  if (foundForm && foundForm.form_avatar) {
+                        const deleteAvatar = await cloudinary.uploader.destroy(foundForm.form_avatar.form_avatar_publicId)
+                  }
+
+                  const formQueryDoc = { _id: new Types.ObjectId(form_id), form_owner: user?._id }
+                  const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } }
+                  const formOptions = { new: true, upsert: true }
+
+                  const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions)
+
+                  return { form: formUpdate }
             }
 
             const formQueryDoc = { _id: new Types.ObjectId(form_id), form_owner: user?._id }
@@ -179,7 +247,7 @@ class FormService {
       static async addInputToTitle(req: CustomRequest<{ form: FormSchema & { _id: Types.ObjectId } }>, res: Response, next: NextFunction) {
             const { form } = req.body
             const { user } = req
-
+            console.log({ form })
             const updateFormQuery = { form_owner: user?._id, _id: form._id }
             const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } }
             const updateFormOption = { new: true, upsert: true }
@@ -189,12 +257,25 @@ class FormService {
             return { form: updateFormDoc }
       }
 
-      static async setTitleForm(req: CustomRequest<{ title: string; form: FormSchema & { _id: Types.ObjectId } }>, res: Response, next: NextFunction) {
-            const { form, title } = req.body
+      static async setTitleForm(req: CustomRequest<{ form: FormSchema & { _id: Types.ObjectId } }>, res: Response, next: NextFunction) {
+            const { form } = req.body
             const { user } = req
 
             const updateFormQuery = { form_owner: user?._id, _id: form._id }
-            const updateFormUpdate = { $set: { form_title: title } }
+            const updateFormUpdate = { $set: { form_title: form.form_title } }
+            const updateFormOption = { new: true, upsert: true }
+
+            const updateFormDoc = await formModel.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption)
+
+            return { form: updateFormDoc }
+      }
+
+      static async setModeImageForm(req: CustomRequest<{ form_id: Types.ObjectId; mode: 'Slider' | 'Normal' }>, res: Response, next: NextFunction) {
+            const { form_id, mode } = req.body
+            const { user } = req
+
+            const updateFormQuery = { form_owner: user?._id, _id: form_id }
+            const updateFormUpdate = { $set: { 'form_title.form_title_mode_image': mode } }
             const updateFormOption = { new: true, upsert: true }
 
             const updateFormDoc = await formModel.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption)

@@ -16,6 +16,7 @@ exports.HEADER = {
 };
 const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
     const client_id = req.cookies['client_id'];
+    console.log('client', client_id, req.cookies);
     if (!client_id)
         throw new response_error_1.BadRequestError({ metadata: 'CLIENT::Không truyền user_id' });
     const access_token = req.cookies['access_token'];

@@ -24,7 +24,7 @@ class AccountService {
         const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
         const userQueryDoc = { _id: user?._id };
         const userUpdateDoc = {
-            $set: { avatar: { secure_url: result.secure_url, public_id: result.public_id, date_update: Date.now() } }
+            $set: { user_avatar_current: { secure_url: result.secure_url, public_id: result.public_id, date: Date.now() } }
         };
         const userOptionDoc = { new: true, upsert: true };
         const userUpdate = await user_model_1.default.findOneAndUpdate(userQueryDoc, userUpdateDoc, userOptionDoc);

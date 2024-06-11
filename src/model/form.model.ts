@@ -13,12 +13,16 @@ type FormTextStyle = 'normal' | 'italic'
 type FormAvatarPosition = 'left' | 'center' | 'right'
 type FormAvatarMode = 'circle' | 'square'
 
+export type FormTitleSub = {
+      _id?: string
+      type: 'Text' | 'Image' | 'List'
+      value: string
+      write: boolean
+}
+
 export type FormSchema = {
       form_owner: Types.ObjectId
-      form_title: string
-      form_title_color?: string
-      form_title_size?: number
-      form_title_style?: FormTextStyle
+
       form_background?: {
             form_background_iamge_url: string
             form_backround_image_publicId: string
@@ -26,6 +30,15 @@ export type FormSchema = {
                   x: number
                   y: number
             }
+      }
+
+      form_title?: {
+            form_title_style?: FormTextStyle
+            form_title_value: string
+            form_title_color?: string
+            form_title_size?: number
+            form_title_mode_image: 'Normal' | 'Slider'
+            form_title_sub: FormTitleSub[]
       }
 
       form_avatar_state: boolean
@@ -62,15 +75,35 @@ export type FormSchema = {
 
 type FormSchemaDoc = FormSchema & Document
 
+const formTitleSubSchema = new Schema<FormTitleSub>({
+      type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
+      value: { type: String, default: '' },
+      write: { type: Boolean, default: false }
+})
+
 export const formSchema = new Schema<FormSchemaDoc>(
       {
             form_owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-            form_title: { type: String },
-            form_title_color: { type: String },
-            form_title_size: { type: Number },
-            form_title_style: { type: String, default: 'normal' },
 
             form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String, position: String, mode: String } },
+            form_title: {
+                  type: {
+                        form_title_color: { type: String },
+                        form_title_size: { type: Number },
+                        form_title_style: { type: String },
+                        form_title_value: { type: String },
+                        form_title_sub: { type: [formTitleSubSchema] },
+                        form_title_mode_image: { type: String }
+                  },
+                  default: {
+                        form_title_color: '#2568aa',
+                        form_title_size: 40,
+                        form_title_style: 'normal',
+                        form_title_value: '',
+                        form_title_mode_image: 'Normal',
+                        form_title_sub: []
+                  }
+            },
             form_background: {
                   type: {
                         form_background_iamge_url: String,
