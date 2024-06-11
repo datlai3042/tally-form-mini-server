@@ -19,17 +19,17 @@ import SocketService from './services/Socket.service'
 config()
 const app = express()
 const server = createServer(app)
-const io = new Server(server, {
-      cors: {
-            origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
-            methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
-            allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
-            credentials: true
-      },
-      cookie: true
-})
+// const io = new Server(server, {
+//       cors: {
+//             origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
+//             methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
+//             allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
+//             credentials: true
+//       },
+//       cookie: true
+// })
 
-global._io = io // cach 2
+// global._io = io // cach 2
 
 MongoConnect.Connect()
 app.use(helmet())
@@ -50,7 +50,7 @@ app.use(
       })
 )
 
-global._io.on('connection', SocketService.connection)
+// global._io.on('connection', SocketService.connection)
 app.use('', router)
 
 app.use((error: ErrorServer, req: Request, res: Response, next: NextFunction) => {
