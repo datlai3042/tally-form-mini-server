@@ -2,7 +2,9 @@ import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
 import { BadRequestError } from '~/Core/response.error'
 import cloudinary from '~/configs/cloudinary.config'
+import { inputSettingText } from '~/constants/input.constants'
 import formModel, { FormSchema, FormTitleSub } from '~/model/form.model'
+import { inputModel } from '~/model/input.model'
 import { CustomRequest, Form, FormEdit, Http, InputCore } from '~/type'
 import uploadToCloudinary from '~/utils/upload.cloudinary'
 
@@ -23,8 +25,8 @@ class FormService {
 
       static async getFormId(req: CustomRequest<object, { form_id: string }>, res: Response, next: NextFunction) {
             const { form_id } = req.query
-            console.log({ form_id })
-            const form = await formModel.findOneAndUpdate({ _id: new Types.ObjectId(form_id) }, {}, { upsert: true, new: true })
+            const { user } = req
+            const form = await formModel.findOne({ _id: new Types.ObjectId(form_id), form_owner: user?._id })
 
             return { form: form ? form : null }
       }
@@ -48,9 +50,9 @@ class FormService {
 
       static async getFormGuess(req: CustomRequest<object, { form_id: string }>, res: Response, next: NextFunction) {
             const { form_id } = req.query
-            console.log({ form_id })
             const formQuery = { _id: new Types.ObjectId(form_id) }
             const form = await formModel.findOne(formQuery)
+
             return { form: form ? form : null }
       }
 
@@ -74,10 +76,9 @@ class FormService {
 
             return { form: formUpdate }
       }
-      static async updateForm(req: CustomRequest<FormEdit.FormEditParams>, res: Response, next: NextFunction) {
+      static async updateForm(req: CustomRequest<FormEdit.FormEditParams & { inputItem: InputCore.InputForm }>, res: Response, next: NextFunction) {
             const { user } = req
-            const { form } = req.body
-            console.log({ body: JSON.stringify(form) })
+            const { form, inputItem } = req.body
             const formQueryDoc = { form_owner: user?._id, _id: new Types.ObjectId(form._id) }
 
             const formUpdateDoc = {
@@ -244,17 +245,29 @@ class FormService {
             return { form: formUpdate }
       }
 
-      static async addInputToTitle(req: CustomRequest<{ form: FormSchema & { _id: Types.ObjectId } }>, res: Response, next: NextFunction) {
-            const { form } = req.body
+      static async addInputToTitle(req: CustomRequest<{ form: Form.FormCore }>, res: Response, next: NextFunction) {
+            // const { form } = req.body
+            // const { user } = req
+            // const updateFormQuery = { form_owner: user?._id, _id: form._id }
+            // const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } }
+            // const updateFormOption = { new: true, upsert: true }
+
+            // const updateFormDoc = await formModel.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption)
+
+            // return { form: updateFormDoc }
+
             const { user } = req
-            console.log({ form })
-            const updateFormQuery = { form_owner: user?._id, _id: form._id }
-            const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } }
-            const updateFormOption = { new: true, upsert: true }
+            const { form } = req.body
 
-            const updateFormDoc = await formModel.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption)
+            const newInput = await inputModel.create({ core: { setting: inputSettingText }, type: 'TEXT' })
 
-            return { form: updateFormDoc }
+            const newForm = await formModel.findOneAndUpdate(
+                  { _id: form._id, form_owner: user?._id },
+                  { $push: { form_inputs: newInput } },
+                  { new: true, upsert: true }
+            )
+
+            return { form: newForm }
       }
 
       static async setTitleForm(req: CustomRequest<{ form: FormSchema & { _id: Types.ObjectId } }>, res: Response, next: NextFunction) {
@@ -316,36 +329,6 @@ class FormService {
             const formOptionDoc = { new: true, upsert: true }
 
             const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc)
-            if (!formUpdate) throw new BadRequestError({ metadata: 'update form failure' })
-
-            return { form: formUpdate }
-      }
-
-      static async updateSettingInput(
-            req: CustomRequest<{
-                  form: FormEdit.FormEditParams & { _id: Types.ObjectId }
-                  input_id: Types.ObjectId
-                  input_id_setting: InputCore.InputSettingTextCommon
-            }>,
-            res: Response,
-            next: NextFunction
-      ) {
-            const { user } = req
-            const { form, input_id, input_id_setting } = req.body
-            console.log({ body: JSON.stringify(form) })
-            const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': input_id }
-
-            const formUpdateDoc = {
-                  $set: {
-                        'form_inputs.$.setting': input_id_setting
-                  }
-            }
-            const formOptionDoc = { new: true, upsert: true }
-
-            const formUpdate = await formModel.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc)
-
-            console.log({ formUpdateDoc: JSON.stringify(formUpdate) })
-
             if (!formUpdate) throw new BadRequestError({ metadata: 'update form failure' })
 
             return { form: formUpdate }

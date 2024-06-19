@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const response_error_1 = require("../Core/response.error");
 const cloudinary_config_1 = __importDefault(require("../configs/cloudinary.config"));
+const input_constants_1 = require("../constants/input.constants");
 const form_model_1 = __importDefault(require("../model/form.model"));
+const input_model_1 = require("../model/input.model");
 const upload_cloudinary_1 = __importDefault(require("../utils/upload.cloudinary"));
 class FormService {
     static async createForm(req, res, next) {
@@ -24,8 +26,8 @@ class FormService {
     }
     static async getFormId(req, res, next) {
         const { form_id } = req.query;
-        console.log({ form_id });
-        const form = await form_model_1.default.findOneAndUpdate({ _id: new mongoose_1.Types.ObjectId(form_id) }, {}, { upsert: true, new: true });
+        const { user } = req;
+        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id });
         return { form: form ? form : null };
     }
     static async deleteFormId(req, res, next) {
@@ -45,7 +47,6 @@ class FormService {
     }
     static async getFormGuess(req, res, next) {
         const { form_id } = req.query;
-        console.log({ form_id });
         const formQuery = { _id: new mongoose_1.Types.ObjectId(form_id) };
         const form = await form_model_1.default.findOne(formQuery);
         return { form: form ? form : null };
@@ -68,8 +69,7 @@ class FormService {
     }
     static async updateForm(req, res, next) {
         const { user } = req;
-        const { form } = req.body;
-        console.log({ body: JSON.stringify(form) });
+        const { form, inputItem } = req.body;
         const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form._id) };
         const formUpdateDoc = {
             $set: {
@@ -198,14 +198,18 @@ class FormService {
         return { form: formUpdate };
     }
     static async addInputToTitle(req, res, next) {
-        const { form } = req.body;
+        // const { form } = req.body
+        // const { user } = req
+        // const updateFormQuery = { form_owner: user?._id, _id: form._id }
+        // const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } }
+        // const updateFormOption = { new: true, upsert: true }
+        // const updateFormDoc = await formModel.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption)
+        // return { form: updateFormDoc }
         const { user } = req;
-        console.log({ form });
-        const updateFormQuery = { form_owner: user?._id, _id: form._id };
-        const updateFormUpdate = { $set: { form_title: form.form_title, form_inputs: form.form_inputs } };
-        const updateFormOption = { new: true, upsert: true };
-        const updateFormDoc = await form_model_1.default.findOneAndUpdate(updateFormQuery, updateFormUpdate, updateFormOption);
-        return { form: updateFormDoc };
+        const { form } = req.body;
+        const newInput = await input_model_1.inputModel.create({ core: { setting: input_constants_1.inputSettingText }, type: 'TEXT' });
+        const newForm = await form_model_1.default.findOneAndUpdate({ _id: form._id, form_owner: user?._id }, { $push: { form_inputs: newInput } }, { new: true, upsert: true });
+        return { form: newForm };
     }
     static async setTitleForm(req, res, next) {
         const { form } = req.body;
@@ -249,23 +253,6 @@ class FormService {
         };
         const formOptionDoc = { new: true, upsert: true };
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
-        if (!formUpdate)
-            throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
-        return { form: formUpdate };
-    }
-    static async updateSettingInput(req, res, next) {
-        const { user } = req;
-        const { form, input_id, input_id_setting } = req.body;
-        console.log({ body: JSON.stringify(form) });
-        const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': input_id };
-        const formUpdateDoc = {
-            $set: {
-                'form_inputs.$.setting': input_id_setting
-            }
-        };
-        const formOptionDoc = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
-        console.log({ formUpdateDoc: JSON.stringify(formUpdate) });
         if (!formUpdate)
             throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
         return { form: formUpdate };

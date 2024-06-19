@@ -3,6 +3,7 @@ import { upload } from '~/configs/cloudinary.config'
 import FormController from '~/controllers/form.controller'
 import { asyncHandler } from '~/helpers/asyncHandler'
 import authentication from '~/middlewares/authentication'
+import FormInput from '~/services/formInput.service'
 
 const routerForm = Router()
 routerForm.get('/get-form-guess', asyncHandler(FormController.getFormGuess))
@@ -28,7 +29,10 @@ routerForm.post('/create-form', asyncHandler(FormController.createForm))
 routerForm.post('/update-form', asyncHandler(FormController.updateForm))
 routerForm.post('/update-form-title-mode-image', asyncHandler(FormController.setModeImageForm))
 
-routerForm.post('/add-input-to-title', asyncHandler(FormController.addInputToTitle))
+routerForm.post('/update-title-input', asyncHandler(FormController.updateTitleInput))
+routerForm.post('/add-input-to-title', asyncHandler(FormController.addInputAndSetTitle))
+routerForm.post('/add-input-to-enter', asyncHandler(FormController.addInputToEnter))
+
 routerForm.post('/update-sub-title', asyncHandler(FormController.updateTitleSub))
 routerForm.post('/upload-sub-title-image', upload.single('file'), asyncHandler(FormController.uploadTitleImage))
 
@@ -36,5 +40,9 @@ routerForm.post('/set-title-form', asyncHandler(FormController.setTitleForm))
 routerForm.post('/update-input-item', asyncHandler(FormController.updateInputItem))
 routerForm.post('/delete-input-item', asyncHandler(FormController.deleteInputItem))
 routerForm.post('/update-input-item-setting', asyncHandler(FormController.updateSettingInput))
+routerForm.post('/change-input-type', asyncHandler(FormController.changeInputType))
+routerForm.post('/add-option-value', asyncHandler(FormController.addOption))
+routerForm.post('/update-position-option', asyncHandler(FormController.updatePositionOption))
+routerForm.delete('/delete-option-id', asyncHandler(FormController.deleteOptionId))
 
 export default routerForm

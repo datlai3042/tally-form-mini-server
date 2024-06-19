@@ -80,15 +80,15 @@ class AuthService {
     static async logout(req, res, next) {
         const user = req.user;
         const { force } = req.body;
+        res.clearCookie('client_id');
+        res.clearCookie('refresh_token');
+        res.clearCookie('code_verify_token');
+        res.clearCookie('access_token');
         if (force) {
             await keyManager_model_1.default.findOneAndDelete({ user_id: user._id });
             return { message: 'Token hết hạn và đẵ buộc phải logout', force };
         }
         await keyManager_model_1.default.findOneAndDelete({ user_id: user._id });
-        res.clearCookie('client_id');
-        res.clearCookie('refresh_token');
-        res.clearCookie('code_verify_token');
-        res.clearCookie('access_token');
         return { message: 'Logout thành công' };
     }
     static async refresh_token(req, res, next) {

@@ -25,11 +25,17 @@ routerForm.post('/delete-avatar', (0, asyncHandler_1.asyncHandler)(form_controll
 routerForm.post('/create-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.createForm));
 routerForm.post('/update-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateForm));
 routerForm.post('/update-form-title-mode-image', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setModeImageForm));
-routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToTitle));
+routerForm.post('/update-title-input', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateTitleInput));
+routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputAndSetTitle));
+routerForm.post('/add-input-to-enter', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToEnter));
 routerForm.post('/update-sub-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateTitleSub));
 routerForm.post('/upload-sub-title-image', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadTitleImage));
 routerForm.post('/set-title-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setTitleForm));
 routerForm.post('/update-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateInputItem));
 routerForm.post('/delete-input-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteInputItem));
 routerForm.post('/update-input-item-setting', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateSettingInput));
+routerForm.post('/change-input-type', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.changeInputType));
+routerForm.post('/add-option-value', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addOption));
+routerForm.post('/update-position-option', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updatePositionOption));
+routerForm.delete('/delete-option-id', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteOptionId));
 exports.default = routerForm;

@@ -11,6 +11,14 @@ class FormAnswerService {
         const formAnswerUpdate = { $push: { reports: { form_id: formAnswer.form_id, answers: formAnswer.answers } } };
         const formAnswerOption = { new: true, upsert: true };
         const findFormOrigin = await formAnswer_model_1.default.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption);
+        const socketOwnerForm = global._userSocket[findFormOrigin?.owner_id];
+        console.log({ user: global._userSocket, socketOwnerForm });
+        if (socketOwnerForm) {
+            console.log({ emit: global._userSocket[findFormOrigin?.owner_id] });
+            global._io
+                .to(global._userSocket[findFormOrigin?.owner_id].socket_id)
+                .emit('add-new-reports', { type: 'Answer', formAnswer: findFormOrigin });
+        }
         return { message: 'Gửi thành công' };
     }
     static async getFormAnswer(req, res, next) {

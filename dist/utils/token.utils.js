@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fillDataKeyModel = exports.verifyRefreshToken = exports.verifyAccessToken = exports.createPayload = exports.generateCodeVerifyToken = exports.generatePaidKey = exports.generatePaidToken = void 0;
+exports.getCookieValueHeader = exports.fillDataKeyModel = exports.verifyRefreshToken = exports.verifyAccessTokenSocket = exports.verifyAccessToken = exports.createPayload = exports.generateCodeVerifyToken = exports.generatePaidKey = exports.generatePaidToken = void 0;
 const crypto_1 = require("crypto");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const response_error_1 = require("../Core/response.error");
 const generatePaidToken = (payload, key) => {
-    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '10m' });
+    const access_token = jsonwebtoken_1.default.sign(payload, key.public_key, { expiresIn: '20m' });
     const refresh_token = jsonwebtoken_1.default.sign(payload, key.private_key, { expiresIn: '30m' });
     if (!access_token || !refresh_token)
         throw new response_error_1.ResponseError({ metadata: 'Lỗi do tạo key' });
@@ -58,6 +58,20 @@ const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, ne
     return next();
 };
 exports.verifyAccessToken = verifyAccessToken;
+const verifyAccessTokenSocket = ({ user, keyStore, client_id, token, key }) => {
+    let checkAT = false;
+    jsonwebtoken_1.default.verify(token, key, (error, decode) => {
+        if (error) {
+            return checkAT;
+        }
+        const payload = decode;
+        if (payload._id.toString() !== client_id)
+            return checkAT;
+        checkAT = true;
+    });
+    return checkAT;
+};
+exports.verifyAccessTokenSocket = verifyAccessTokenSocket;
 const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, next }) => {
     const force = req.body.force;
     jsonwebtoken_1.default.verify(token, key, (error, decode) => {
@@ -88,3 +102,13 @@ const fillDataKeyModel = (user, public_key, private_key, refresh_token, code_ver
     return { modelKeyQuery, modelKeyUpdate, modelKeyOption };
 };
 exports.fillDataKeyModel = fillDataKeyModel;
+const getCookieValueHeader = (CookieName, CookiesString) => {
+    const cookieSplit = CookiesString?.split(';');
+    const cookies = {};
+    cookieSplit?.forEach((pair) => {
+        const [name, value] = pair.split('=').map((item) => item.trim());
+        cookies[name] = value;
+    });
+    return cookies[CookieName];
+};
+exports.getCookieValueHeader = getCookieValueHeader;

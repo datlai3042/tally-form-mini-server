@@ -78,7 +78,7 @@ exports.formSchema = new mongoose_1.Schema({
             form_avatar_default_url: 'https://res.cloudinary.com/cloud304/image/upload/v1715055937/tally_form_project/setting_default/aanihty5eiravlosapmv.jpg'
         }
     },
-    form_inputs: { type: [input_model_1.inputTextSchema, input_model_1.inputEmailSchema, input_model_1.inputDateSchema] },
+    form_inputs: [input_model_1.inputCoreSchema],
     form_button_label: { type: String, default: 'Submit' }
 }, { collection: COLLECTION_NAME, timestamps: true });
 const formModel = (0, mongoose_1.model)(DOCUMENT_NAME, exports.formSchema);

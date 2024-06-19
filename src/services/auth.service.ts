@@ -67,7 +67,6 @@ class AuthService {
 
       static async login(req: CustomRequest<AuthParam>, res: Response, next: NextFunction) {
             const { email, password } = req.body
-
             const foundUser = await userModel.findOne({ user_email: email })
             if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy thông tin tài khoản' })
 
@@ -104,6 +103,10 @@ class AuthService {
       static async logout(req: CustomRequest, res: Response, next: NextFunction) {
             const user = req.user as UserDocument
             const { force } = req.body
+            res.clearCookie('client_id')
+            res.clearCookie('refresh_token')
+            res.clearCookie('code_verify_token')
+            res.clearCookie('access_token')
             if (force) {
                   await keyManagerModel.findOneAndDelete({ user_id: user._id })
                   return { message: 'Token hết hạn và đẵ buộc phải logout', force }
@@ -111,10 +114,6 @@ class AuthService {
 
             await keyManagerModel.findOneAndDelete({ user_id: user._id })
 
-            res.clearCookie('client_id')
-            res.clearCookie('refresh_token')
-            res.clearCookie('code_verify_token')
-            res.clearCookie('access_token')
             return { message: 'Logout thành công' }
       }
 

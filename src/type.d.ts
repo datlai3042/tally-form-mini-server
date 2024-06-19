@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import { UserDocument } from './model/user.model'
 import { KeyManagerDocument } from './model/keyManager.model'
-import { ObjectId, Types } from 'mongoose'
+import mongoose, { ObjectId, Schema, Types } from 'mongoose'
 import { FormSchema } from './model/form.model'
 
 export declare global {
@@ -61,30 +61,31 @@ namespace Token {
 
 namespace InputCore {
       export type InputCommon = {
-            input_heading: string
-            input_heading_type: 'LABEL' | 'TITLE'
-
-            _id: string
+            input_title: string
+            _id: Types.ObjectId
       }
 
       type InputSettingTextCommon = {
             minLength: number
             maxLength: number
+            placeholder?: string
       } & InputSettingCommon
 
       type InputSettingCommon = {
-            placeholder?: string
+            _id: Types.ObjectId
             input_color: string
             input_size: number
             input_style: string
             input_error: string
             require: boolean
       }
+
+      type InputSettingOption = InputSettingCommon
       namespace InputEmail {
             export interface InputTypeEmail extends InputCore.InputCommon {
                   type: 'EMAIL'
                   input_value: string
-                  setting?: InputCore.InputSettingTextCommon
+                  core: Core.Text
             }
 
             export interface InputEmailSender extends InputTypeEmail {
@@ -133,12 +134,21 @@ namespace InputCore {
             export type InputText = 'TEXT'
             export type InputTypeText = InputCore.InputCommon & {
                   type: InputText
-                  setting: InputSettingTextCommon
+                  core: Core.Text
             }
       }
 
       namespace InputOption {
-            export type InputTypeOption = InputCore.InputCommon & { type: 'Option'; option: string[]; conditions: { require: true } }
+            type InputOption = 'OPTION'
+
+            type InputTypeOption = InputCore.InputCommon & {
+                  type: InputOption
+                  core: Core.Option
+            }
+      }
+
+      namespace InputOptionMultiple {
+            export type InputTypeOptionMultiple = InputCore.InputCommon & { type: 'OPTION_MULTIPLE'; core: Core.Option }
       }
 
       namespace InputImage {
@@ -153,12 +163,35 @@ namespace InputCore {
             }
       }
 
-      export type InputForm =
+      type InputForm =
             | InputText.InputTypeText
             | InputEmail.InputTypeEmail
             | InputOption.InputTypeOption
-            | InputDate.InputTypeDate
-            | InputImage.InputTypeImage
+            // | InputDate.InputTypeDate
+            | InputOptionMultiple.InputTypeOptionMultiple
+      // | InputImage.InputTypeImage
+}
+
+namespace Core {
+      type CoreCommon = Text | Option
+
+      type Setting = {
+            input_color: string
+            input_size: number
+            input_style: string
+            input_error: string
+            require: boolean
+      }
+
+      type Text = {
+            setting: Core.Setting & {
+                  minLength: number
+                  maxLength: number
+                  placeholder?: string
+            }
+      }
+
+      type Option = { setting: Core.Setting; options: { option_id: string; option_value: string }[] }
 }
 
 namespace UpdateAccount {
@@ -174,7 +207,7 @@ namespace UpdateAccount {
 
 namespace FormEdit {
       export type FormEditParams = {
-            form: FormSchema & { _id: string }
+            form: FormSchema & { _id: string; input_id: string }
       }
 
       export type FindFormParams = {
@@ -183,6 +216,7 @@ namespace FormEdit {
 }
 
 namespace Form {
+      type FormCore = FormSchema & { _id: string }
       namespace FormAnswer {
             type InputFormRequire = { _id?: string; title?: string; checkRequire: boolean }
             type InputFormData = {
@@ -190,12 +224,13 @@ namespace Form {
                   title: string
                   mode: 'Require' | 'Optional'
                   value: string
-                  type: 'TEXT' | 'EMAIL' | 'IMAGE'
+                  type: 'TEXT' | 'EMAIL' | 'IMAGE' | 'OPTION' | 'OPTION_MULTIPLE'
             }
 
             type TFormAnswer = {
                   form_id: Types.ObjectId
                   answers: InputFormData[]
+                  create_time: Date
             }
 
             type formAnswerOrigin = {

@@ -7,7 +7,7 @@ import { UserDocument } from '~/model/user.model'
 import { CustomRequest, Token } from '~/type'
 
 export const generatePaidToken = <PayloadJWT extends object>(payload: PayloadJWT, key: Token.Key): Token.PairToken => {
-      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '10m' })
+      const access_token = jwt.sign(payload, key.public_key, { expiresIn: '20m' })
       const refresh_token = jwt.sign(payload, key.private_key, { expiresIn: '30m' })
       if (!access_token || !refresh_token) throw new ResponseError({ metadata: 'Lỗi do tạo key' })
       return { access_token, refresh_token }
@@ -50,6 +50,8 @@ export type ParamVerifyAT = {
       res: Response
       next: NextFunction
 }
+
+export type ParamVerifyATSocket = Omit<ParamVerifyAT, 'req' | 'res' | 'next'>
 export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, res, next }: ParamVerifyAT) => {
       jwt.verify(token, key, (error, decode) => {
             if (error) {
@@ -66,6 +68,20 @@ export const verifyAccessToken = ({ user, keyStore, client_id, token, key, req, 
             req.keyStore = keyStore
       })
       return next()
+}
+
+export const verifyAccessTokenSocket = ({ user, keyStore, client_id, token, key }: ParamVerifyATSocket) => {
+      let checkAT = false
+      jwt.verify(token, key, (error, decode) => {
+            if (error) {
+                  return checkAT
+            }
+
+            const payload = decode as Token.PayloadJWT
+            if (payload._id.toString() !== client_id) return checkAT
+            checkAT = true
+      })
+      return checkAT
 }
 
 export const verifyRefreshToken = ({ user, keyStore, client_id, token, key, req, res, next }: ParamVerifyAT) => {
@@ -100,4 +116,15 @@ export const fillDataKeyModel = (user: UserDocument, public_key: string, private
       const modelKeyOption = { new: true, upsert: true }
 
       return { modelKeyQuery, modelKeyUpdate, modelKeyOption }
+}
+
+export const getCookieValueHeader = (CookieName: string, CookiesString: string) => {
+      const cookieSplit = CookiesString?.split(';')
+      const cookies: { [key: string]: string } = {}
+      cookieSplit?.forEach((pair) => {
+            const [name, value] = pair.split('=').map((item) => item.trim())
+            cookies[name] = value
+      })
+
+      return cookies[CookieName]
 }

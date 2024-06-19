@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema, Types, model } from 'mongoose'
 import { InputCore } from '~/type'
-import { inputDateSchema, inputEmailSchema, inputTextSchema } from './input.model'
+import { inputCoreSchema } from './input.model'
 
 const DOCUMENT_NAME = 'Form'
 const COLLECTION_NAME = 'forms'
@@ -69,7 +69,7 @@ export type FormSchema = {
       form_state: FormState
       form_button_label: string
 
-      form_inputs: mongoose.Types.DocumentArray<InputCore.InputForm[]>
+      form_inputs: mongoose.Types.DocumentArray<InputCore.InputCommon[]>
       expireAt?: Date
 }
 
@@ -153,7 +153,7 @@ export const formSchema = new Schema<FormSchemaDoc>(
                               'https://res.cloudinary.com/cloud304/image/upload/v1715055937/tally_form_project/setting_default/aanihty5eiravlosapmv.jpg'
                   }
             },
-            form_inputs: { type: [inputTextSchema, inputEmailSchema, inputDateSchema] },
+            form_inputs: [inputCoreSchema],
 
             form_button_label: { type: String, default: 'Submit' }
       },

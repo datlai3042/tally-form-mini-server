@@ -15,7 +15,14 @@ class FormAnswerService {
             const formAnswerUpdate = { $push: { reports: { form_id: formAnswer.form_id, answers: formAnswer.answers } } }
             const formAnswerOption = { new: true, upsert: true }
             const findFormOrigin = await formAnswerModel.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption)
-
+            const socketOwnerForm = global._userSocket[findFormOrigin?.owner_id as unknown as string]
+            console.log({ user: global._userSocket, socketOwnerForm })
+            if (socketOwnerForm) {
+                  console.log({ emit: global._userSocket[findFormOrigin?.owner_id as unknown as string] })
+                  global._io
+                        .to(global._userSocket[findFormOrigin?.owner_id as unknown as string].socket_id)
+                        .emit('add-new-reports', { type: 'Answer', formAnswer: findFormOrigin })
+            }
             return { message: 'Gửi thành công' }
       }
 

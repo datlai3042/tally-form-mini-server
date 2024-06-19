@@ -8,17 +8,19 @@ const inputData = new Schema<Form.FormAnswer.InputFormData>({
       _id: { type: String, required: true },
       mode: { type: String, enum: ['Require', 'Optional'] },
       title: { type: String, required: true },
-      type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL'] },
+      type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL', 'OPTION_MULTIPLE', 'OPTION'] },
       value: { type: Schema.Types.Mixed }
 })
 
 const formAnswer = new Schema<Form.FormAnswer.TFormAnswer>(
       {
             form_id: { type: Schema.Types.ObjectId, ref: 'Form', required: true },
-            answers: { type: [inputData], default: [] }
+            answers: { type: [inputData], default: [] },
+            create_time: { type: Date, default: Date.now }
       },
-      { collection: COLLECTION_NAME, timestamps: true }
+      { collection: 'formAnswerItem', timestamps: true }
 )
+export const formAnswerMiniModel = model('FormAnswerItem', formAnswer)
 
 const formAnswerOrigin = new Schema<Form.FormAnswer.formAnswerOrigin>(
       {

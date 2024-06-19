@@ -1,6 +1,8 @@
 import { NextFunction, Response } from 'express'
 import { CREATE, OK } from '~/Core/response.success'
 import FormService from '~/services/form.service'
+import FormInputService from '~/services/formInput.service'
+import FormInput from '~/services/formInput.service'
 import { CustomRequest } from '~/type'
 
 class FormController {
@@ -10,6 +12,18 @@ class FormController {
 
       static async getForms(req: CustomRequest, res: Response, next: NextFunction) {
             return new CREATE({ metadata: await FormService.getForms(req, res, next) }).send(res)
+      }
+
+      static async addInputAndSetTitle(req: CustomRequest, res: Response, next: NextFunction) {
+            return new CREATE({ metadata: await FormInputService.addInputAndSetTitle(req, res, next) }).send(res)
+      }
+
+      static async addInput(req: CustomRequest, res: Response, next: NextFunction) {
+            return new CREATE({ metadata: await FormInputService.addInput(req, res, next) }).send(res)
+      }
+
+      static async addInputToEnter(req: CustomRequest, res: Response, next: NextFunction) {
+            return new CREATE({ metadata: await FormInputService.addInputToEnter(req, res, next) }).send(res)
       }
 
       static async getFormId(req: CustomRequest, res: Response, next: NextFunction) {
@@ -34,6 +48,10 @@ class FormController {
 
       static async updateForm(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.updateForm(req, res, next) }).send(res)
+      }
+
+      static async updateTitleInput(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormInputService.updateTitleInput(req, res, next) }).send(res)
       }
 
       static async updateTitleSub(req: CustomRequest, res: Response, next: NextFunction) {
@@ -77,7 +95,7 @@ class FormController {
       }
 
       static async updateSettingInput(req: CustomRequest, res: Response, next: NextFunction) {
-            return new OK({ metadata: await FormService.updateSettingInput(req, res, next) }).send(res)
+            return new OK({ metadata: await FormInputService.updateSettingInput(req, res, next) }).send(res)
       }
 
       static async addAvatar(req: CustomRequest, res: Response, next: NextFunction) {
@@ -86,6 +104,22 @@ class FormController {
 
       static async addBackground(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.addBackground(req, res, next) }).send(res)
+      }
+
+      static async changeInputType(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormInputService.changeInputType(req, res, next) }).send(res)
+      }
+
+      static async addOption(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormInputService.addOption(req, res, next) }).send(res)
+      }
+
+      static async updatePositionOption(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormInputService.updatePositionOption(req, res, next) }).send(res)
+      }
+
+      static async deleteOptionId(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormInputService.deleteOptionId(req, res, next) }).send(res)
       }
 }
 

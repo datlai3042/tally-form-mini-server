@@ -1,50 +1,60 @@
-import { Document, Schema } from 'mongoose'
-import { InputCore } from '~/type'
+import mongoose, { Document, Schema, model } from 'mongoose'
+import { Core, InputCore } from '~/type'
 
-export const inputEmailSchema = new Schema<InputCore.InputEmail.InputTypeEmail>({
-      type: { type: String, default: 'EMAIL' },
-      input_heading: { type: String },
-      input_heading_type: { type: String },
+export const inputCoreSchema = new Schema<InputCore.InputCommon & { type: InputCore.InputForm['type']; core: Core.Option | Core.Text }>(
+      {
+            type: { type: String, default: 'EMAIL' },
+            input_title: { type: String },
+            core: { type: Schema.Types.Mixed, require: true }
+      },
+      { collection: 'inputcores', timestamps: true }
+)
 
+export const inputModel = model('InputCore', inputCoreSchema)
+
+export const coreInputText = new Schema({
+      inputCore: { type: Schema.Types.ObjectId, ref: 'InputCore' },
       setting: {
-            type: {
-                  input_error: { type: String, default: 'Email không hợp lệ', required: true },
-                  placeholder: { type: String, default: 'Nhập Email của bạn', required: true },
-                  require: { type: Boolean, default: false },
-                  minLength: { type: Number, default: 8 },
-                  maxLength: { type: Number, default: 100 },
-                  input_color: { type: String, default: '#000000' },
-                  input_style: { type: String, enum: ['normal', 'italic'], default: '#000000' },
-                  input_size: { type: Number, default: 16 }
-            }
+            input_error: { type: String, default: 'Email không hợp lệ', required: true },
+            placeholder: { type: String, default: 'Nhập Email của bạn', required: true },
+            require: { type: Boolean, default: false },
+            minLength: { type: Number, default: 8 },
+            maxLength: { type: Number, default: 100 },
+            input_color: { type: String, default: '#000000' },
+            input_style: { type: String, enum: ['normal', 'italic'], default: '#000000' },
+            input_size: { type: Number, default: 16 }
       }
 })
 
-export const inputTextSchema = new Schema<InputCore.InputText.InputTypeText>({
-      type: { type: String, default: 'TEXT' },
-      input_heading: { type: String },
-      input_heading_type: { type: String },
+export const coreInputTextModel = model('InputTextCore', coreInputText)
 
+export const coreInputEmail = new Schema({
+      inputCore: { type: Schema.Types.ObjectId, ref: 'InputCore' },
       setting: {
-            type: {
-                  input_error: { type: String, default: 'Nội dung không hợp lệ', required: true },
-                  placeholder: { type: String, default: 'Nhập nội dung của bạn', required: true },
-                  require: { type: Boolean, default: false },
-                  minLength: { type: Number, default: 8 },
-                  maxLength: { type: Number, default: 100 },
-                  input_color: { type: String, default: '#000000' },
-                  input_style: { type: String, enum: ['normal', 'italic'], default: '#000000' },
-                  input_size: { type: Number, default: 16 }
-            }
+            input_error: { type: String, default: 'Email không hợp lệ', required: true },
+            placeholder: { type: String, default: 'Nhập Email của bạn', required: true },
+            require: { type: Boolean, default: false },
+            minLength: { type: Number, default: 8 },
+            maxLength: { type: Number, default: 100 },
+            input_color: { type: String, default: '#000000' },
+            input_style: { type: String, enum: ['normal', 'italic'], default: '#000000' },
+            input_size: { type: Number, default: 16 }
+      }
+})
+export const coreInputEmailModel = model('InputEmailCore', coreInputEmail)
+
+export const coreInputOption = new Schema({
+      inputCore: { type: Schema.Types.ObjectId, ref: 'InputCore' },
+      setting: {
+            input_error: { type: String, default: 'Email không hợp lệ', required: true },
+            placeholder: { type: String, default: 'Nhập Email của bạn', required: true },
+            require: { type: Boolean, default: false },
+            minLength: { type: Number, default: 8 },
+            maxLength: { type: Number, default: 100 },
+            input_color: { type: String, default: '#000000' },
+            input_style: { type: String, enum: ['normal', 'italic'], default: '#000000' },
+            input_size: { type: Number, default: 16 }
       }
 })
 
-export const inputDateSchema = new Schema<InputCore.InputDate.InputTypeDate>({
-      type: { type: String, default: 'Date' },
-      date_type: { type: String, default: 'Any' },
-      // input_error: { type: String, default: 'Ngày không hợp lệ' },
-      input_heading: { type: String },
-      input_heading_type: { type: String },
-
-      conditions: { type: { date_time: Number, require: Boolean } }
-})
+export const coreInputOptionModel = model('InputOptionCore', coreInputOption)

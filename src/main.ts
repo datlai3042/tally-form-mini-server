@@ -15,21 +15,29 @@ import errorHandler from './helpers/errorHandler'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
 import SocketService from './services/Socket.service'
+import { ExtendedError } from 'node_modules/socket.io/dist/namespace'
+import { getCookieValueHeader, verifyAccessTokenSocket } from './utils/token.utils'
+import userModel from './model/user.model'
+import { Types } from 'mongoose'
+import keyManagerModel from './model/keyManager.model'
+import { AuthFailedError, BadRequestError } from './Core/response.error'
+
+export type UserSocket = { [key: string]: { socket_id: string } }
 
 config()
 const app = express()
-// const server = createServer(app)
-// const io = new Server(server, {
-//       cors: {
-//             origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
-//             methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
-//             allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
-//             credentials: true
-//       },
-//       cookie: true
-// })
-
-// global._io = io // cach 2
+const server = createServer(app)
+const io = new Server(server, {
+      cors: {
+            origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
+            methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
+            allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
+            credentials: true
+      },
+      cookie: true
+})
+global._userSocket = {}
+global._io = io // cach 2
 
 MongoConnect.Connect()
 app.use(helmet())
@@ -44,19 +52,46 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(
       cors({
             origin: process.env.MODE === 'DEV' ? 'http://localhost:3000' : process.env.CLIENT_URL, // Cho phép truy cập từ origin này
-            methods: ['GET', 'POST'], // Chỉ cho phép các phương thức GET và POST
+            methods: ['GET', 'POST', 'DELETE'], // Chỉ cho phép các phương thức GET và POST
             allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Chỉ
             credentials: true
       })
 )
 
-// global._io.on('connection', SocketService.connection)
+global._io.use(async (socket: Socket, next: any) => {
+      const clientId = getCookieValueHeader('client_id', socket.request.headers.cookie!)
+      const access_token = getCookieValueHeader('access_token', socket.request.headers.cookie!)
+      console.log('connect', clientId)
+      const user = await userModel.findOne({ _id: new Types.ObjectId(clientId) })
+      console.log({ user })
+      if (!user) {
+            console.log('loi')
+            return next(new BadRequestError({ metadata: 'Không tìm thấy user' }))
+      }
+      const foundKey = await keyManagerModel.findOne({ user_id: user?._id })
+
+      if (!foundKey) {
+            return next(new BadRequestError({ metadata: 'Không tìm thấy key' }))
+      }
+
+      const checkAuthentication = verifyAccessTokenSocket({
+            user: user,
+            keyStore: foundKey,
+            client_id: clientId,
+            token: access_token,
+            key: foundKey?.public_key as string
+      })
+      console.log({ checkAuthentication })
+      return checkAuthentication ? next() : next(new AuthFailedError({ metadata: 'Token hết hạn' }))
+})
+
+global._io.on('connection', SocketService.connection)
 app.use('', router)
 
 app.use((error: ErrorServer, req: Request, res: Response, next: NextFunction) => {
       return errorHandler(error, req, res, next)
 })
 
-app.listen(process.env.MODE === 'DEV' ? 4000 : process.env.PORT, () => {
+server.listen(process.env.MODE === 'DEV' ? 4000 : process.env.PORT, () => {
       console.log('comming', process.env.MODE)
 })

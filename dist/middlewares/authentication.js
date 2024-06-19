@@ -16,23 +16,29 @@ exports.HEADER = {
 };
 const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) => {
     const client_id = req.cookies['client_id'];
-    console.log('client', client_id, req.cookies);
-    if (!client_id)
-        throw new response_error_1.BadRequestError({ metadata: 'CLIENT::Không truyền user_id' });
+    if (!client_id) {
+        res.clearCookie('client_id');
+        res.clearCookie('refresh_token');
+        res.clearCookie('code_verify_token');
+        res.clearCookie('access_token');
+        throw new response_error_1.ForbiddenError({ metadata: 'CLIENT::Không truyền user_id' });
+    }
     const access_token = req.cookies['access_token'];
     if (!access_token)
         throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy access_token' });
     const user = await user_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(client_id) });
     if (!user)
         throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy user' });
-    const force = req.body.force;
-    if (force && req.originalUrl === '/v1/api/auth/logout') {
-        req.user = user;
-        return next();
-    }
     const keyStore = await keyManager_model_1.default.findOne({ user_id: user._id });
     if (!keyStore)
         throw new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy key của user' });
+    if (req.originalUrl === '/v1/api/auth/logout') {
+        const code_verify_token = req.cookies['code_verify_token'];
+        if (keyStore.code_verify_token === code_verify_token || keyStore.user_id === new mongoose_1.Types.ObjectId(client_id)) {
+            req.user = user;
+            return next();
+        }
+    }
     //CASE: Auth refresh_token
     if (req.originalUrl === '/v1/api/auth/refresh-token') {
         const code_verify_token = req.cookies['code_verify_token'];
@@ -42,7 +48,7 @@ const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) =
         }
         const refresh_token = req.cookies['refresh_token'];
         if (!refresh_token)
-            return next(new response_error_1.AuthFailedError({ metadata: 'Không tìm thấy refresh_token' }));
+            return next(new response_error_1.ForbiddenError({ metadata: 'Không tìm thấy refresh_token' }));
         return (0, token_utils_1.verifyRefreshToken)({ client_id, user, keyStore, token: refresh_token, key: keyStore.private_key, req, res, next });
     }
     //CASE: Auth access_token

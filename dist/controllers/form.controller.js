@@ -5,12 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const response_success_1 = require("../Core/response.success");
 const form_service_1 = __importDefault(require("../services/form.service"));
+const formInput_service_1 = __importDefault(require("../services/formInput.service"));
 class FormController {
     static async createForm(req, res, next) {
         return new response_success_1.CREATE({ metadata: await form_service_1.default.createForm(req, res, next) }).send(res);
     }
     static async getForms(req, res, next) {
         return new response_success_1.CREATE({ metadata: await form_service_1.default.getForms(req, res, next) }).send(res);
+    }
+    static async addInputAndSetTitle(req, res, next) {
+        return new response_success_1.CREATE({ metadata: await formInput_service_1.default.addInputAndSetTitle(req, res, next) }).send(res);
+    }
+    static async addInput(req, res, next) {
+        return new response_success_1.CREATE({ metadata: await formInput_service_1.default.addInput(req, res, next) }).send(res);
+    }
+    static async addInputToEnter(req, res, next) {
+        return new response_success_1.CREATE({ metadata: await formInput_service_1.default.addInputToEnter(req, res, next) }).send(res);
     }
     static async getFormId(req, res, next) {
         return new response_success_1.CREATE({ metadata: await form_service_1.default.getFormId(req, res, next) }).send(res);
@@ -29,6 +39,9 @@ class FormController {
     }
     static async updateForm(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.updateForm(req, res, next) }).send(res);
+    }
+    static async updateTitleInput(req, res, next) {
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.updateTitleInput(req, res, next) }).send(res);
     }
     static async updateTitleSub(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.updateTitleSub(req, res, next) }).send(res);
@@ -61,13 +74,25 @@ class FormController {
         return new response_success_1.OK({ metadata: await form_service_1.default.deleteInputItem(req, res, next) }).send(res);
     }
     static async updateSettingInput(req, res, next) {
-        return new response_success_1.OK({ metadata: await form_service_1.default.updateSettingInput(req, res, next) }).send(res);
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.updateSettingInput(req, res, next) }).send(res);
     }
     static async addAvatar(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.addAvatar(req, res, next) }).send(res);
     }
     static async addBackground(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.addBackground(req, res, next) }).send(res);
+    }
+    static async changeInputType(req, res, next) {
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.changeInputType(req, res, next) }).send(res);
+    }
+    static async addOption(req, res, next) {
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.addOption(req, res, next) }).send(res);
+    }
+    static async updatePositionOption(req, res, next) {
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.updatePositionOption(req, res, next) }).send(res);
+    }
+    static async deleteOptionId(req, res, next) {
+        return new response_success_1.OK({ metadata: await formInput_service_1.default.deleteOptionId(req, res, next) }).send(res);
     }
 }
 exports.default = FormController;
