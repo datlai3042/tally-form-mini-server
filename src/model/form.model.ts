@@ -8,13 +8,15 @@ const COLLECTION_NAME = 'forms'
 type FormInputs = InputCore.InputForm[]
 export type FormBackgroundMode = 'DEFAULT' | 'CUSTOM'
 
-type FormState = 'isDraff' | 'isPrivate' | 'isPublic'
+export type FormState = 'isPrivate' | 'isPublic' | 'isDelete'
 type FormTextStyle = 'normal' | 'italic'
 type FormAvatarPosition = 'left' | 'center' | 'right'
 type FormAvatarMode = 'circle' | 'square'
+export type FormModeDisplay = 'basic' | 'custom'
 
 export type FormTitleSub = {
       _id?: string
+      form_id: Types.ObjectId
       type: 'Text' | 'Image' | 'List'
       value: string
       write: boolean
@@ -50,6 +52,8 @@ export type FormSchema = {
             mode: FormAvatarMode
       }
 
+      form_mode_display: FormModeDisplay
+
       form_setting_default: {
             form_background_default_url: string
             form_background_position_default: {
@@ -77,14 +81,16 @@ type FormSchemaDoc = FormSchema & Document
 
 const formTitleSubSchema = new Schema<FormTitleSub>({
       type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
+      form_id: { type: Schema.Types.ObjectId, ref: 'Form', require: true },
       value: { type: String, default: '' },
       write: { type: Boolean, default: false }
 })
 
+export const formTitleSubModel = model('formTitleSub', formTitleSubSchema)
+
 export const formSchema = new Schema<FormSchemaDoc>(
       {
             form_owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-
             form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String, position: String, mode: String } },
             form_title: {
                   type: {
@@ -116,7 +122,9 @@ export const formSchema = new Schema<FormSchemaDoc>(
             },
             form_avatar_state: { type: Boolean, default: false },
             form_background_state: { type: Boolean, default: false },
-            form_state: { type: String, enum: ['isDraff', 'isPublic', 'isPrivate'], default: 'isDraff' },
+            form_state: { type: String, enum: ['isPublic', 'isPrivate', 'isDelete'], default: 'isPrivate' },
+            form_mode_display: { type: String, enum: ['basic', 'custom'], default: 'basic' },
+
             form_setting_default: {
                   type: {
                         form_avatar_default_postion: String,

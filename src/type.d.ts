@@ -163,17 +163,46 @@ namespace InputCore {
             }
       }
 
+      namespace InputVote {
+            type InputVote = 'VOTE'
+
+            type InputTypeVote = InputCore.InputCommon & {
+                  type: InputVote
+                  core: Core.Vote
+            }
+      }
+
+      namespace InputVote {
+            type InputVote = 'VOTE'
+
+            type InputTypeVote = InputCore.InputCommon & {
+                  type: InputVote
+                  core: Core.Vote
+            }
+      }
+
+      namespace InputPhone {
+            type InputPhone = 'PHONE'
+
+            type InputTypePhone = InputCore.InputCommon & {
+                  type: InputPhone
+                  core: Core.Phone
+            }
+      }
+
       type InputForm =
             | InputText.InputTypeText
             | InputEmail.InputTypeEmail
+            | InputVote.InputTypeVote
             | InputOption.InputTypeOption
+            | InputPhone.InputTypePhone
             // | InputDate.InputTypeDate
             | InputOptionMultiple.InputTypeOptionMultiple
       // | InputImage.InputTypeImage
 }
 
 namespace Core {
-      type CoreCommon = Text | Option
+      type CoreCommon = Text | Option | Vote
 
       type Setting = {
             input_color: string
@@ -192,6 +221,8 @@ namespace Core {
       }
 
       type Option = { setting: Core.Setting; options: { option_id: string; option_value: string }[] }
+      type Vote = { setting: Core.Setting }
+      type Phone = { setting: Core.Setting }
 }
 
 namespace UpdateAccount {
@@ -224,7 +255,7 @@ namespace Form {
                   title: string
                   mode: 'Require' | 'Optional'
                   value: string
-                  type: 'TEXT' | 'EMAIL' | 'IMAGE' | 'OPTION' | 'OPTION_MULTIPLE'
+                  type: 'TEXT' | 'EMAIL' | 'IMAGE' | 'OPTION' | 'OPTION_MULTIPLE' | 'PHONE' | 'VOTE'
             }
 
             type TFormAnswer = {
@@ -239,4 +270,63 @@ namespace Form {
                   reports: TFormAnswer[]
             }
       }
+}
+
+namespace Notification {
+      namespace Type {
+            type System = 'System'
+            type FormAnswers = 'Form_Answers'
+            type Account = 'Account'
+
+            type Common = System | FormAnswers | Account
+      }
+
+      namespace Core {
+            type System = {
+                  message: string
+            }
+
+            type FormAnswers = {
+                  message: string
+                  form_id: string
+                  form_answer_id: string
+                  create_time: string
+            }
+
+            type Account = {
+                  message: string
+            }
+
+            type Common = System | FormAnswers | Account
+      }
+
+      namespace System {
+            type NotificationSystem = Notification.Commom.TCommon & {
+                  type: Type.System
+                  core: Core.System
+            }
+      }
+
+      namespace Account {
+            type NotificationAccount = Notification.Commom.TCommon & {
+                  type: Type.Account
+                  core: Core.Account
+            }
+      }
+
+      namespace FormAnswers {
+            type NotificationFormAnswers = Notification.Commom.TCommon & {
+                  type: Type.FormAnswers
+                  core: Core.FormAnswers
+            }
+      }
+
+      namespace Commom {
+            type TCommon = {
+                  _id: Types.ObjectId
+                  create_time: Date
+            }
+      }
+
+      type NotifcationCore = System.NotificationSystem | Account.NotificationAccount | FormAnswers.NotificationFormAnswers
 }

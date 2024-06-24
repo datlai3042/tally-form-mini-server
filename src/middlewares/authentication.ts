@@ -48,7 +48,6 @@ const authentication = asyncHandler(async (req: CustomRequest, res: Response, ne
       //CASE: Auth refresh_token
       if (req.originalUrl === '/v1/api/auth/refresh-token') {
             const code_verify_token = req.cookies['code_verify_token'] as string
-            console.log({ code_verify_token, db: keyStore.code_verify_token })
             if (code_verify_token.toLowerCase() !== keyStore.code_verify_token.toLowerCase()) {
                   throw new ForbiddenError({ metadata: 'Yêu cầu không hợp lệ' })
             }

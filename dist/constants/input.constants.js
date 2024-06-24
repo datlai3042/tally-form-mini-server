@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateInputSettingDefault = exports.inputSettingOption = exports.inputSettingText = void 0;
+exports.generateInputSettingDefault = exports.inputSettingPhone = exports.inputSettingVote = exports.inputSettingOption = exports.inputSettingEmail = exports.inputSettingText = void 0;
 const inputSettingCommon = {
     require: false,
     input_error: 'Nội dung không hợp lệ',
@@ -11,10 +11,22 @@ const inputSettingCommon = {
 exports.inputSettingText = {
     maxLength: 100,
     placeholder: 'Nhập nội dung của bạn',
-    minLength: 8,
+    minLength: 1,
+    ...inputSettingCommon
+};
+exports.inputSettingEmail = {
+    maxLength: 100,
+    placeholder: 'Nhập email của bạn',
+    minLength: 5,
     ...inputSettingCommon
 };
 exports.inputSettingOption = {
+    ...inputSettingCommon
+};
+exports.inputSettingVote = {
+    ...inputSettingCommon
+};
+exports.inputSettingPhone = {
     ...inputSettingCommon
 };
 const generateInputSettingDefault = (form, inputItem) => {

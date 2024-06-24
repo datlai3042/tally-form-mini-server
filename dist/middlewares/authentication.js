@@ -42,7 +42,6 @@ const authentication = (0, asyncHandler_1.asyncHandler)(async (req, res, next) =
     //CASE: Auth refresh_token
     if (req.originalUrl === '/v1/api/auth/refresh-token') {
         const code_verify_token = req.cookies['code_verify_token'];
-        console.log({ code_verify_token, db: keyStore.code_verify_token });
         if (code_verify_token.toLowerCase() !== keyStore.code_verify_token.toLowerCase()) {
             throw new response_error_1.ForbiddenError({ metadata: 'Yêu cầu không hợp lệ' });
         }

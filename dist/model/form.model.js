@@ -1,15 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formSchema = void 0;
+exports.formSchema = exports.formTitleSubModel = void 0;
 const mongoose_1 = require("mongoose");
 const input_model_1 = require("./input.model");
 const DOCUMENT_NAME = 'Form';
 const COLLECTION_NAME = 'forms';
 const formTitleSubSchema = new mongoose_1.Schema({
     type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
+    form_id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Form', require: true },
     value: { type: String, default: '' },
     write: { type: Boolean, default: false }
 });
+exports.formTitleSubModel = (0, mongoose_1.model)('formTitleSub', formTitleSubSchema);
 exports.formSchema = new mongoose_1.Schema({
     form_owner: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String, position: String, mode: String } },
@@ -43,7 +45,8 @@ exports.formSchema = new mongoose_1.Schema({
     },
     form_avatar_state: { type: Boolean, default: false },
     form_background_state: { type: Boolean, default: false },
-    form_state: { type: String, enum: ['isDraff', 'isPublic', 'isPrivate'], default: 'isDraff' },
+    form_state: { type: String, enum: ['isPublic', 'isPrivate', 'isDelete'], default: 'isPrivate' },
+    form_mode_display: { type: String, enum: ['basic', 'custom'], default: 'basic' },
     form_setting_default: {
         type: {
             form_avatar_default_postion: String,

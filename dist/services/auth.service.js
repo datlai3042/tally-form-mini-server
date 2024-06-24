@@ -8,15 +8,16 @@ const keyManager_model_1 = __importDefault(require("../model/keyManager.model"))
 const user_model_1 = __importDefault(require("../model/user.model"));
 const bcrypt_utils_1 = require("../utils/bcrypt.utils");
 const dataResponse_utils_1 = require("../utils/dataResponse.utils");
+const notification_1 = __importDefault(require("../utils/notification"));
 const token_utils_1 = require("../utils/token.utils");
 class AuthService {
     static async register(req, res, next) {
         const { email, password, first_name, last_name } = req.body;
         if (!email || !password || !first_name || !last_name)
-            throw new response_error_1.BadRequestError({ metadata: 'Missing Field' });
+            throw new response_error_1.AuthFailedError({ metadata: 'Request thiếu các field bắt buốc' });
         const foundEmail = await user_model_1.default.findOne({ user_email: email });
         if (foundEmail)
-            throw new response_error_1.BadRequestError({ metadata: 'Email đã tồn tại' });
+            throw new response_error_1.AuthFailedError({ metadata: 'Email đã tồn tại' });
         const hashPassword = await (0, bcrypt_utils_1.hassPassword)(password);
         const createUser = await user_model_1.default.create({
             user_email: email,
@@ -36,10 +37,11 @@ class AuthService {
         const createKey = await keyManager_model_1.default.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption);
         if (!createKey)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
+        const createNotification = await (0, notification_1.default)({ user_id: createUser?._id, type: 'System', core: { message: 'Cảm ơn bạn đã tạo tài khoản' } });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
-        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', token.access_token, { httpOnly: true });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', token.access_token, { httpOnly: true });
+        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(createUser.toObject(), ['user_password']),
             token: { access_token: token.access_token, refresh_token: token.refresh_token, code_verify_token },
@@ -51,10 +53,10 @@ class AuthService {
         const { email, password } = req.body;
         const foundUser = await user_model_1.default.findOne({ user_email: email });
         if (!foundUser)
-            throw new response_error_1.NotFoundError({ metadata: 'Không tìm thấy thông tin tài khoản' });
+            throw new response_error_1.AuthFailedError({ metadata: 'Không tìm thấy thông tin tài khoản' });
         const checkPassword = (0, bcrypt_utils_1.compare)(password, foundUser?.user_password);
         if (!checkPassword)
-            throw new response_error_1.AuthFailedError({ metadata: 'Something wrongs...' });
+            throw new response_error_1.AuthFailedError({ metadata: 'Không tin tài khoản không chính xác' });
         const foundKey = await keyManager_model_1.default.findOneAndDelete({ user_id: foundUser._id });
         const { public_key, private_key } = (0, token_utils_1.generatePaidKey)();
         if (!public_key || !private_key)
@@ -66,10 +68,11 @@ class AuthService {
         const keyStore = await keyManager_model_1.default.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption);
         if (!keyStore)
             throw new response_error_1.ResponseError({ metadata: 'Server không thể tạo model key' });
+        const createNotification = await (0, notification_1.default)({ user_id: foundUser?._id, type: 'System', core: { message: 'Chào mừng bạn quay trở lại' } });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token, { httpOnly: true });
-        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
+        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', refresh_token, { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(foundUser.toObject(), ['user_password']),
             token: { access_token, refresh_token, code_verify_token },
@@ -80,6 +83,7 @@ class AuthService {
     static async logout(req, res, next) {
         const user = req.user;
         const { force } = req.body;
+        const createNotification = await (0, notification_1.default)({ user_id: user?._id, type: 'System', core: { message: 'Đăng xuất thành công' } });
         res.clearCookie('client_id');
         res.clearCookie('refresh_token');
         res.clearCookie('code_verify_token');
@@ -107,11 +111,10 @@ class AuthService {
         };
         const keyModelOption = { new: true, upsert: true };
         const updateKeyModel = await keyManager_model_1.default.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption);
-        console.log({ key: updateKeyModel?.toObject() });
-        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true });
+        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'client_id', user._id.toString(), { httpOnly: true });
         (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true });
-        const expireToken = (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
+        (0, dataResponse_utils_1.setCookieResponse)(res, dataResponse_utils_1.expriresAT, 'access_token', access_token, { httpOnly: true });
         return {
             user: (0, dataResponse_utils_1.omit)(user.toObject(), ['user_password']),
             token: { access_token, refresh_token: new_refresh_token, code_verify_token },

@@ -1,4 +1,11 @@
-import { generateInputSettingDefault, inputSettingOption, inputSettingText } from '~/constants/input.constants'
+import {
+      generateInputSettingDefault,
+      inputSettingEmail,
+      inputSettingOption,
+      inputSettingPhone,
+      inputSettingText,
+      inputSettingVote
+} from '~/constants/input.constants'
 import { Core, Form, InputCore } from '~/type'
 
 export const generateInputSettingWithType = (type: InputCore.InputForm['type'], form: Form.FormCore, inputItem: InputCore.InputForm) => {
@@ -10,6 +17,21 @@ export const generateInputSettingWithType = (type: InputCore.InputForm['type'], 
             }
 
             case 'EMAIL': {
+                  const setting_default = generateInputSettingDefault(form, inputItem)
+                  return (core = { setting: { ...setting_default, ...inputSettingEmail } } as Core.Text)
+            }
+
+            case 'VOTE': {
+                  const setting_default = generateInputSettingDefault(form, inputItem)
+                  return (core = { setting: { ...setting_default, ...inputSettingVote } } as Core.Text)
+            }
+
+            case 'PHONE': {
+                  const setting_default = generateInputSettingDefault(form, inputItem)
+                  return (core = { setting: { ...setting_default, ...inputSettingPhone } } as Core.Text)
+            }
+
+            case 'TEXT': {
                   const setting_default = generateInputSettingDefault(form, inputItem)
                   return (core = { setting: { ...setting_default, ...inputSettingText } } as Core.Text)
             }

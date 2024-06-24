@@ -1,10 +1,12 @@
 import { NextFunction, Response } from 'express'
 import { AuthFailedError, BadRequestError, NotFoundError, ResponseError } from '~/Core/response.error'
 import keyManagerModel from '~/model/keyManager.model'
+import { notificationModel } from '~/model/notification.model'
 import userModel, { UserDocument } from '~/model/user.model'
 import { CustomRequest, Token } from '~/type'
 import { compare, hassPassword } from '~/utils/bcrypt.utils'
 import { expriresAT, omit, oneWeek, setCookieResponse } from '~/utils/dataResponse.utils'
+import createANotification from '~/utils/notification'
 import { createPayload, fillDataKeyModel, generateCodeVerifyToken, generatePaidKey, generatePaidToken } from '~/utils/token.utils'
 
 type AuthParam = {
@@ -18,10 +20,10 @@ class AuthService {
       static async register(req: CustomRequest<AuthParam>, res: Response, next: NextFunction) {
             const { email, password, first_name, last_name } = req.body
 
-            if (!email || !password || !first_name || !last_name) throw new BadRequestError({ metadata: 'Missing Field' })
+            if (!email || !password || !first_name || !last_name) throw new AuthFailedError({ metadata: 'Request thiếu các field bắt buốc' })
 
             const foundEmail = await userModel.findOne({ user_email: email })
-            if (foundEmail) throw new BadRequestError({ metadata: 'Email đã tồn tại' })
+            if (foundEmail) throw new AuthFailedError({ metadata: 'Email đã tồn tại' })
 
             const hashPassword = await hassPassword(password)
 
@@ -52,10 +54,12 @@ class AuthService {
             const createKey = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
             if (!createKey) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
 
+            const createNotification = await createANotification({ user_id: createUser?._id, type: 'System', core: { message: 'Cảm ơn bạn đã tạo tài khoản' } })
+
             setCookieResponse(res, oneWeek, 'client_id', createUser._id.toString(), { httpOnly: true })
             setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
-            const expireToken = setCookieResponse(res, expriresAT, 'access_token', token.access_token, { httpOnly: true })
-            setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
+            setCookieResponse(res, expriresAT, 'access_token', token.access_token, { httpOnly: true })
+            const expireToken = setCookieResponse(res, oneWeek, 'refresh_token', token.refresh_token, { httpOnly: true })
 
             return {
                   user: omit(createUser.toObject(), ['user_password']),
@@ -68,10 +72,10 @@ class AuthService {
       static async login(req: CustomRequest<AuthParam>, res: Response, next: NextFunction) {
             const { email, password } = req.body
             const foundUser = await userModel.findOne({ user_email: email })
-            if (!foundUser) throw new NotFoundError({ metadata: 'Không tìm thấy thông tin tài khoản' })
+            if (!foundUser) throw new AuthFailedError({ metadata: 'Không tìm thấy thông tin tài khoản' })
 
             const checkPassword = compare(password, foundUser?.user_password)
-            if (!checkPassword) throw new AuthFailedError({ metadata: 'Something wrongs...' })
+            if (!checkPassword) throw new AuthFailedError({ metadata: 'Không tin tài khoản không chính xác' })
 
             const foundKey = await keyManagerModel.findOneAndDelete({ user_id: foundUser._id })
 
@@ -86,11 +90,13 @@ class AuthService {
             const keyStore = await keyManagerModel.findOneAndUpdate(modelKeyQuery, modelKeyUpdate, modelKeyOption)
 
             if (!keyStore) throw new ResponseError({ metadata: 'Server không thể tạo model key' })
+            const createNotification = await createANotification({ user_id: foundUser?._id, type: 'System', core: { message: 'Chào mừng bạn quay trở lại' } })
+
             setCookieResponse(res, oneWeek, 'client_id', foundUser._id.toString(), { httpOnly: true })
             setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
-            setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
-            const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
+            const expireToken = setCookieResponse(res, oneWeek, 'refresh_token', refresh_token, { httpOnly: true })
+            setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(foundUser.toObject(), ['user_password']),
                   token: { access_token, refresh_token, code_verify_token },
@@ -103,6 +109,8 @@ class AuthService {
       static async logout(req: CustomRequest, res: Response, next: NextFunction) {
             const user = req.user as UserDocument
             const { force } = req.body
+            const createNotification = await createANotification({ user_id: user?._id, type: 'System', core: { message: 'Đăng xuất thành công' } })
+
             res.clearCookie('client_id')
             res.clearCookie('refresh_token')
             res.clearCookie('code_verify_token')
@@ -135,13 +143,12 @@ class AuthService {
             const keyModelOption = { new: true, upsert: true }
 
             const updateKeyModel = await keyManagerModel.findOneAndUpdate(keyModelQuery, keyModelUpdate, keyModelOption)
-            console.log({ key: updateKeyModel?.toObject() })
 
-            setCookieResponse(res, oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true })
+            const expireToken = setCookieResponse(res, oneWeek, 'refresh_token', new_refresh_token, { httpOnly: true })
             setCookieResponse(res, oneWeek, 'client_id', user._id.toString(), { httpOnly: true })
             setCookieResponse(res, oneWeek, 'code_verify_token', code_verify_token, { httpOnly: true })
 
-            const expireToken = setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
+            setCookieResponse(res, expriresAT, 'access_token', access_token, { httpOnly: true })
             return {
                   user: omit(user.toObject(), ['user_password']),
                   token: { access_token, refresh_token: new_refresh_token, code_verify_token },

@@ -10,7 +10,7 @@ routerForm.use(authentication)
 routerForm.get('/get-forms', asyncHandler(FormController.getForms))
 routerForm.get('/get-form-id', asyncHandler(FormController.getFormId))
 
-routerForm.get('/find-form', asyncHandler(FormController.findFormUpdate))
+routerForm.get('/find-form', asyncHandler(FormController.getFormUpdate))
 
 routerForm.post('/create-form', asyncHandler(FormController.createForm))
 routerForm.post('/update-form', asyncHandler(FormController.updateForm))

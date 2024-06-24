@@ -8,7 +8,7 @@ const inputData = new mongoose_1.Schema({
     _id: { type: String, required: true },
     mode: { type: String, enum: ['Require', 'Optional'] },
     title: { type: String, required: true },
-    type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL', 'OPTION_MULTIPLE', 'OPTION'] },
+    type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL', 'OPTION_MULTIPLE', 'OPTION', 'VOTE', 'PHONE'] },
     value: { type: mongoose_1.Schema.Types.Mixed }
 });
 const formAnswer = new mongoose_1.Schema({

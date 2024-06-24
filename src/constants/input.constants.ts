@@ -11,11 +11,26 @@ const inputSettingCommon = {
 export const inputSettingText = {
       maxLength: 100,
       placeholder: 'Nhập nội dung của bạn',
-      minLength: 8,
+      minLength: 1,
+      ...inputSettingCommon
+}
+
+export const inputSettingEmail = {
+      maxLength: 100,
+      placeholder: 'Nhập email của bạn',
+      minLength: 5,
       ...inputSettingCommon
 }
 
 export const inputSettingOption = {
+      ...inputSettingCommon
+}
+
+export const inputSettingVote = {
+      ...inputSettingCommon
+}
+
+export const inputSettingPhone = {
       ...inputSettingCommon
 }
 

@@ -8,7 +8,7 @@ const inputData = new Schema<Form.FormAnswer.InputFormData>({
       _id: { type: String, required: true },
       mode: { type: String, enum: ['Require', 'Optional'] },
       title: { type: String, required: true },
-      type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL', 'OPTION_MULTIPLE', 'OPTION'] },
+      type: { type: String, enum: ['TEXT', 'IMAGE', 'EMAIL', 'OPTION_MULTIPLE', 'OPTION', 'VOTE', 'PHONE'] },
       value: { type: Schema.Types.Mixed }
 })
 

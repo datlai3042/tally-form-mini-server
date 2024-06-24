@@ -12,7 +12,7 @@ routerForm.get('/find-form-guess', (0, asyncHandler_js_1.asyncHandler)(form_cont
 routerForm.use(authentication_js_1.default);
 routerForm.get('/get-forms', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.getForms));
 routerForm.get('/get-form-id', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.getFormId));
-routerForm.get('/find-form', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.findFormUpdate));
+routerForm.get('/find-form', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.getFormUpdate));
 routerForm.post('/create-form', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.createForm));
 routerForm.post('/update-form', (0, asyncHandler_js_1.asyncHandler)(form_controller_js_1.default.updateForm));
 exports.default = routerForm;

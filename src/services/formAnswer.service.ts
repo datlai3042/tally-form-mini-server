@@ -1,7 +1,9 @@
 import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
-import formAnswerModel from '~/model/formAnswer.model'
-import { CustomRequest, Form } from '~/type'
+import formModel from '~/model/form.model'
+import formAnswerModel, { formAnswerMiniModel } from '~/model/formAnswer.model'
+import { CustomRequest, Form, Notification } from '~/type'
+import createANotification from '~/utils/notification'
 
 class FormAnswerService {
       static async addAnswerForm(
@@ -11,17 +13,38 @@ class FormAnswerService {
       ) {
             const { formAnswer } = req.body
 
+            const found_form_origin = await formModel.findOne({ _id: formAnswer.form_id }).select('form_title form_avatar form_setting_default')
+
+            const formAnswerMini = await formAnswerMiniModel.create({ form_id: formAnswer.form_id, answers: formAnswer.answers })
+
             const formAnswerQuery = { form_id: formAnswer.form_id, owner_id: formAnswer.form_owner }
-            const formAnswerUpdate = { $push: { reports: { form_id: formAnswer.form_id, answers: formAnswer.answers } } }
+            const formAnswerUpdate = { $push: { reports: formAnswerMini } }
             const formAnswerOption = { new: true, upsert: true }
             const findFormOrigin = await formAnswerModel.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption)
+
             const socketOwnerForm = global._userSocket[findFormOrigin?.owner_id as unknown as string]
-            console.log({ user: global._userSocket, socketOwnerForm })
+            const createNotification = await createANotification({
+                  user_id: findFormOrigin?.owner_id as Types.ObjectId,
+                  type: 'Form_Answers',
+                  core: {
+                        message: `bạn đã nhận 1 phiếu trả lời`,
+                        form_id: findFormOrigin?.form_id as unknown as string,
+                        form_answer_id: formAnswerMini._id as unknown as string
+                  }
+            })
+
+            createNotification!.notifications!.notifications = createNotification!.notifications?.notifications.sort(
+                  (a, b) => b.create_time.getTime() - a.create_time.getTime()
+            ) as Notification.NotifcationCore[]
+
             if (socketOwnerForm) {
-                  console.log({ emit: global._userSocket[findFormOrigin?.owner_id as unknown as string] })
-                  global._io
-                        .to(global._userSocket[findFormOrigin?.owner_id as unknown as string].socket_id)
-                        .emit('add-new-reports', { type: 'Answer', formAnswer: findFormOrigin })
+                  global._io.to(global._userSocket[findFormOrigin?.owner_id as unknown as string].socket_id).emit('add-new-reports', {
+                        type: 'Answer',
+                        formAnswer: findFormOrigin,
+                        notification: createNotification.notifications,
+                        notification_item_id: createNotification.notification_item_id,
+                        form_origin: found_form_origin
+                  })
             }
             return { message: 'Gửi thành công' }
       }

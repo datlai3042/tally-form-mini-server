@@ -11,6 +11,18 @@ const generateInputSettingWithType = (type, form, inputItem) => {
         }
         case 'EMAIL': {
             const setting_default = (0, input_constants_1.generateInputSettingDefault)(form, inputItem);
+            return (core = { setting: { ...setting_default, ...input_constants_1.inputSettingEmail } });
+        }
+        case 'VOTE': {
+            const setting_default = (0, input_constants_1.generateInputSettingDefault)(form, inputItem);
+            return (core = { setting: { ...setting_default, ...input_constants_1.inputSettingVote } });
+        }
+        case 'PHONE': {
+            const setting_default = (0, input_constants_1.generateInputSettingDefault)(form, inputItem);
+            return (core = { setting: { ...setting_default, ...input_constants_1.inputSettingPhone } });
+        }
+        case 'TEXT': {
+            const setting_default = (0, input_constants_1.generateInputSettingDefault)(form, inputItem);
             return (core = { setting: { ...setting_default, ...input_constants_1.inputSettingText } });
         }
         case 'OPTION': {
