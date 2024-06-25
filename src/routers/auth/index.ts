@@ -7,6 +7,7 @@ const routerAuth = Router()
 
 routerAuth.post('/register', asyncHandler(AuthController.register))
 routerAuth.post('/login', asyncHandler(AuthController.login))
+routerAuth.get('/oauth/google', asyncHandler(AuthController.oAuthWithGoogle))
 
 routerAuth.use(authentication)
 routerAuth.post('/logout', asyncHandler(AuthController.logout))

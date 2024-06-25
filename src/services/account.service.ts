@@ -26,7 +26,7 @@ class AccountService {
 
             const userQueryDoc = { _id: user?._id }
             const userUpdateDoc = {
-                  $set: { user_avatar_current: { secure_url: result.secure_url, public_id: result.public_id, date: Date.now() } }
+                  $set: { user_avatar_current: result.secure_url }
             }
             const userOptionDoc = { new: true, upsert: true }
 
@@ -48,9 +48,11 @@ class AccountService {
 
             if (!comparePassword) throw new BadRequestError({ metadata: 'Password not match !!!' })
 
+            const user_atlas = user_new_email.split('@')[0]
+
             const userQueryDoc = { _id: user?._id }
             const userUpdateDoc = {
-                  $set: { user_email: user_new_email }
+                  $set: { user_email: user_new_email, user_atlas }
             }
             const userOptionDoc = { new: true, upsert: true }
 

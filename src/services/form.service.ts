@@ -235,7 +235,8 @@ class FormService {
 
             const formUpdateDoc = {
                   $set: {
-                        'form_title.form_title_sub.$.value': form_title_sub_content
+                        'form_title.form_title_sub.$.value': form_title_sub_content,
+                        'form_title.form_title_sub.$.write': true
                   }
             }
             const formOptionDoc = { new: true, upsert: true }

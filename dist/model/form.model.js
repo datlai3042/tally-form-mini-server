@@ -14,11 +14,18 @@ const formTitleSubSchema = new mongoose_1.Schema({
 exports.formTitleSubModel = (0, mongoose_1.model)('formTitleSub', formTitleSubSchema);
 exports.formSchema = new mongoose_1.Schema({
     form_owner: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
-    form_avatar: { type: { form_avatar_url: String, form_avatar_publicId: String, position: String, mode: String } },
+    form_avatar: {
+        type: {
+            form_avatar_url: String,
+            form_avatar_publicId: String,
+            position: { type: String, enum: ['left', 'center', 'right'], default: 'left' },
+            mode_shape: { type: String, enum: ['circle', 'square'], default: 'circle' }
+        }
+    },
     form_title: {
         type: {
             form_title_color: { type: String },
-            form_title_size: { type: Number },
+            form_title_size: { type: Number, max: 40 },
             form_title_style: { type: String },
             form_title_value: { type: String },
             form_title_sub: { type: [formTitleSubSchema] },
@@ -26,7 +33,7 @@ exports.formSchema = new mongoose_1.Schema({
         },
         default: {
             form_title_color: '#2568aa',
-            form_title_size: 40,
+            form_title_size: 24,
             form_title_style: 'normal',
             form_title_value: '',
             form_title_mode_image: 'Normal',
@@ -35,8 +42,10 @@ exports.formSchema = new mongoose_1.Schema({
     },
     form_background: {
         type: {
+            backgroundColor: String,
             form_background_iamge_url: String,
             form_backround_image_publicId: String,
+            mode_show: { type: String, enum: ['cover', 'contain'], default: 'cover' },
             form_background_position: {
                 x: Number,
                 y: Number
@@ -61,7 +70,7 @@ exports.formSchema = new mongoose_1.Schema({
                 y: Number
             },
             input_color: String,
-            input_size: Number,
+            input_size: { type: Number, max: 24 },
             input_style: String
         },
         default: {
@@ -75,7 +84,7 @@ exports.formSchema = new mongoose_1.Schema({
             input_size: 14,
             input_style: 'normal',
             form_title_color_default: '#2568aa',
-            form_title_size_default: 40,
+            form_title_size_default: 24,
             form_title_style_default: 'normal',
             form_background_default_url: 'https://res.cloudinary.com/cloud304/image/upload/v1715055931/tally_form_project/setting_default/icvxveiuj5xysby3yzco.jpg',
             form_avatar_default_url: 'https://res.cloudinary.com/cloud304/image/upload/v1715055937/tally_form_project/setting_default/aanihty5eiravlosapmv.jpg'

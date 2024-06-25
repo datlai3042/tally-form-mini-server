@@ -202,7 +202,8 @@ class FormService {
         const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form_id), 'form_title.form_title_sub._id': form_title_sub_id };
         const formUpdateDoc = {
             $set: {
-                'form_title.form_title_sub.$.value': form_title_sub_content
+                'form_title.form_title_sub.$.value': form_title_sub_content,
+                'form_title.form_title_sub.$.write': true
             }
         };
         const formOptionDoc = { new: true, upsert: true };

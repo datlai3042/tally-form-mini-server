@@ -19,6 +19,11 @@ class AuthController {
       static async refresh_token(req: Request, res: Response, next: NextFunction) {
             return new OK({ metadata: await AuthService.refresh_token(req, res, next) }).send(res)
       }
+
+      //oAuth2
+      static async oAuthWithGoogle(req: CustomRequest, res: Response, next: NextFunction) {
+            return await AuthService.oAuthWithGoogle(req, res, next)
+      }
 }
 
 export default AuthController

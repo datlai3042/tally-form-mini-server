@@ -11,9 +11,9 @@ type Clondinary = {
 
 type UserRole = 'USER' | 'ADMIN' | 'GUEST'
 
-type UserAvatar = Clondinary & {
-      date: Date
-}
+type UserAvatar = string
+
+type UserAuth = 'email' | 'oAuth'
 
 export type UserSchema = {
       user_email: string
@@ -26,6 +26,9 @@ export type UserSchema = {
       user_avatar_system: string
       user_avatar_current: UserAvatar
       user_avater_used: UserAvatar[]
+      user_auth: UserAuth
+      user_password_state: boolean
+      user_atlas: string
 }
 
 export type UserDocument = Document & UserSchema
@@ -35,12 +38,16 @@ const userSchema = new Schema<UserDocument>(
             user_email: { type: String, required: true },
             user_password: { type: String, required: true },
             user_first_name: { type: String, required: true },
+            user_atlas: { type: String, required: true },
+
             user_last_name: { type: String, required: true },
             user_birthday: { type: Date },
             user_gender: { type: String, enum: ['MALE', 'FEMALE', 'OTHER'], default: 'MALE', required: true },
             user_roles: { type: String, enum: ['USER', 'ADMIN', 'GUEST'], default: 'USER', required: true },
             user_avatar_system: { type: String, default: '123', required: true },
-            user_avatar_current: { type: { secure_url: String, public_id: String, date: Date } },
+            user_avatar_current: { type: String },
+            user_password_state: { type: Boolean, default: false, required: true },
+            user_auth: { type: String, enum: ['email', 'oAuth'], default: 'email' },
             user_avater_used: {
                   type: [
                         {
