@@ -1,17 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formSchema = exports.formTitleSubModel = void 0;
+exports.formSchema = void 0;
 const mongoose_1 = require("mongoose");
 const input_model_1 = require("./input.model");
+const form_title_model_1 = require("./form_title.model");
 const DOCUMENT_NAME = 'Form';
 const COLLECTION_NAME = 'forms';
-const formTitleSubSchema = new mongoose_1.Schema({
-    type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
-    form_id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Form', require: true },
-    value: { type: String, default: '' },
-    write: { type: Boolean, default: false }
-});
-exports.formTitleSubModel = (0, mongoose_1.model)('formTitleSub', formTitleSubSchema);
 exports.formSchema = new mongoose_1.Schema({
     form_owner: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     form_avatar: {
@@ -28,7 +22,7 @@ exports.formSchema = new mongoose_1.Schema({
             form_title_size: { type: Number, max: 40 },
             form_title_style: { type: String },
             form_title_value: { type: String },
-            form_title_sub: { type: [formTitleSubSchema] },
+            form_title_sub: { type: [form_title_model_1.formTitleSubSchema] },
             form_title_mode_image: { type: String }
         },
         default: {
@@ -49,6 +43,10 @@ exports.formSchema = new mongoose_1.Schema({
             form_background_position: {
                 x: Number,
                 y: Number
+            },
+            padding: {
+                x: { type: Number, default: 0 },
+                y: { type: Number, default: 0 }
             }
         }
     },

@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express'
 import { Types } from 'mongoose'
 import formModel from '~/model/form.model'
-import formAnswerModel, { formAnswerMiniModel } from '~/model/formAnswer.model'
+import formAnswerModel, { oneAnswer } from '~/model/formAnswer.model'
 import { CustomRequest, Form, Notification } from '~/type'
 import createANotification from '~/utils/notification'
 
@@ -15,12 +15,13 @@ class FormAnswerService {
 
             const found_form_origin = await formModel.findOne({ _id: formAnswer.form_id }).select('form_title form_avatar form_setting_default')
 
-            const formAnswerMini = await formAnswerMiniModel.create({ form_id: formAnswer.form_id, answers: formAnswer.answers })
+            const oneAnswerData = await oneAnswer.create({ form_id: formAnswer.form_id, answers: formAnswer.answers })
 
             const formAnswerQuery = { form_id: formAnswer.form_id, owner_id: formAnswer.form_owner }
-            const formAnswerUpdate = { $push: { reports: formAnswerMini } }
+            const formAnswerUpdate = { $push: { reports: oneAnswerData._id } }
             const formAnswerOption = { new: true, upsert: true }
-            const findFormOrigin = await formAnswerModel.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption)
+
+            const findFormOrigin = await formAnswerModel.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption).populate('reports')
 
             const socketOwnerForm = global._userSocket[findFormOrigin?.owner_id as unknown as string]
             const createNotification = await createANotification({
@@ -29,7 +30,7 @@ class FormAnswerService {
                   core: {
                         message: `bạn đã nhận 1 phiếu trả lời`,
                         form_id: findFormOrigin?.form_id as unknown as string,
-                        form_answer_id: formAnswerMini._id as unknown as string
+                        form_answer_id: oneAnswerData._id as unknown as string
                   }
             })
 
@@ -55,7 +56,7 @@ class FormAnswerService {
             const formAnswerQuery = { form_id: form_id, owner_id: user?._id }
             // const formAnswerUpdate = { $push: { reports: { form_id: formAnswer.form_id, answers: formAnswer.answers } } }
             // const formAnswerOption = { new: true, upsert: true }
-            const findFormOrigin = await formAnswerModel.findOne(formAnswerQuery)
+            const findFormOrigin = await formAnswerModel.findOne(formAnswerQuery).populate('reports')
 
             return { formAnswer: findFormOrigin }
       }

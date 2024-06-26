@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Types, model } from 'mongoose'
-import { InputCore } from '~/type'
+import { Form, InputCore } from '~/type'
 import { inputCoreSchema } from './input.model'
+import { formTitleSubSchema } from './form_title.model'
 
 const DOCUMENT_NAME = 'Form'
 const COLLECTION_NAME = 'forms'
@@ -14,14 +15,6 @@ type FormAvatarPosition = 'left' | 'center' | 'right'
 type FormAvatarMode = 'circle' | 'square'
 export type FormModeDisplay = 'basic' | 'custom'
 
-export type FormTitleSub = {
-      _id?: string
-      form_id: Types.ObjectId
-      type: 'Text' | 'Image' | 'List'
-      value: string
-      write: boolean
-}
-
 export type FormSchema = {
       form_owner: Types.ObjectId
 
@@ -34,6 +27,11 @@ export type FormSchema = {
                   x: number
                   y: number
             }
+
+            padding: {
+                  x: number
+                  y: number
+            }
       }
 
       form_title?: {
@@ -42,7 +40,7 @@ export type FormSchema = {
             form_title_color?: string
             form_title_size?: number
             form_title_mode_image: 'Normal' | 'Slider'
-            form_title_sub: FormTitleSub[]
+            form_title_sub: Form.FormTitle.FormTitleBase[]
       }
 
       form_avatar_state: boolean
@@ -80,15 +78,6 @@ export type FormSchema = {
 }
 
 type FormSchemaDoc = FormSchema & Document
-
-const formTitleSubSchema = new Schema<FormTitleSub>({
-      type: { type: String, enum: ['Text', 'List', 'Image'], default: 'Text' },
-      form_id: { type: Schema.Types.ObjectId, ref: 'Form', require: true },
-      value: { type: String, default: '' },
-      write: { type: Boolean, default: false }
-})
-
-export const formTitleSubModel = model('formTitleSub', formTitleSubSchema)
 
 export const formSchema = new Schema<FormSchemaDoc>(
       {
@@ -128,6 +117,10 @@ export const formSchema = new Schema<FormSchemaDoc>(
                         form_background_position: {
                               x: Number,
                               y: Number
+                        },
+                        padding: {
+                              x: { type: Number, default: 0 },
+                              y: { type: Number, default: 0 }
                         }
                   }
             },

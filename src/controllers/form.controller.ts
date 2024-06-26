@@ -82,8 +82,16 @@ class FormController {
             return new OK({ metadata: await FormService.addSubTitleItem(req, res, next) }).send(res)
       }
 
+      static async deleteSubTitleItem(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.deleteSubTitleItem(req, res, next) }).send(res)
+      }
+
       static async updateTitleSubText(req: CustomRequest, res: Response, next: NextFunction) {
             return new OK({ metadata: await FormService.updateTitleSubText(req, res, next) }).send(res)
+      }
+
+      static async updateSubTitleDescription(req: CustomRequest, res: Response, next: NextFunction) {
+            return new OK({ metadata: await FormService.updateSubTitleDescription(req, res, next) }).send(res)
       }
 
       static async addInputToTitle(req: CustomRequest, res: Response, next: NextFunction) {

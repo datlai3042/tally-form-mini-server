@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = require("mongoose");
 const response_error_1 = require("../Core/response.error");
 const input_constants_1 = require("../constants/input.constants");
 const form_model_1 = __importDefault(require("../model/form.model"));
@@ -13,7 +12,7 @@ class FormInputService {
     static async addInputAndSetTitle(req, res, next) {
         const { user } = req;
         const { form, title } = req.body;
-        const newInput = await input_model_1.inputModel.create({ core: { setting: input_constants_1.inputSettingText }, type: 'TEXT' });
+        const newInput = { core: { setting: input_constants_1.inputSettingText }, type: 'TEXT' };
         const formTitle = { ...form.form_title, form_title_value: title };
         const newForm = await form_model_1.default.findOneAndUpdate({ _id: form._id, form_owner: user?._id }, { $push: { form_inputs: newInput }, $set: { form_title: formTitle } }, { new: true, upsert: true });
         return { form: newForm };
@@ -36,13 +35,10 @@ class FormInputService {
     static async updateSettingInput(req, res, next) {
         const { user } = req;
         const { form, input_id, input_id_setting } = req.body;
-        const inputItem = await input_model_1.inputModel.findOne({ _id: new mongoose_1.Types.ObjectId(input_id) });
-        inputItem.core.setting = input_id_setting;
-        const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': inputItem?._id };
-        console.log({ inputItem });
+        const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': input_id };
         const formUpdateDoc = {
             $set: {
-                'form_inputs.$.core': inputItem.core
+                'form_inputs.$.core.setting': input_id_setting
             }
         };
         const formOptionDoc = { new: true, upsert: true };
@@ -75,9 +71,18 @@ class FormInputService {
         const { user } = req;
         const { form, inputItem, type } = req.body;
         const core = (0, input_utils_1.generateInputSettingWithType)(type, form, inputItem);
-        const updateInput = await input_model_1.inputModel.findOneAndUpdate({ _id: inputItem._id }, { $set: { core: core } }, { new: true, upsert: true });
-        const foundForm = { _id: form._id, form_owner: user?._id, 'form_inputs._id': updateInput?._id };
-        const updateForm = { 'form_inputs.$.core': updateInput?.toObject().core, 'form_inputs.$.type': type };
+        const tempObject = {
+            type,
+            core
+        };
+        console.log({ core });
+        const foundForm = { _id: form._id, form_owner: user?._id, form_inputs: { $elemMatch: { _id: inputItem._id } } };
+        const updateForm = {
+            $set: {
+                'form_inputs.$.core': core,
+                'form_inputs.$.type': type
+            }
+        };
         const options = { new: true, upsert: true };
         const newForm = await form_model_1.default.findOneAndUpdate(foundForm, updateForm, options);
         return { form: newForm };

@@ -30,10 +30,12 @@ const mongoose_1 = require("mongoose");
 const response_error_1 = require("../Core/response.error");
 const cloudinary_config_1 = __importDefault(require("../configs/cloudinary.config"));
 const input_constants_1 = require("../constants/input.constants");
-const form_model_1 = __importStar(require("../model/form.model"));
+const form_model_1 = __importDefault(require("../model/form.model"));
 const formAnswer_model_1 = __importStar(require("../model/formAnswer.model"));
+const form_title_model_1 = require("../model/form_title.model");
 const input_model_1 = require("../model/input.model");
 const notification_model_1 = require("../model/notification.model");
+const form_utils_1 = require("../utils/form.utils");
 const notification_1 = __importDefault(require("../utils/notification"));
 const upload_cloudinary_1 = __importDefault(require("../utils/upload.cloudinary"));
 class FormService {
@@ -60,7 +62,7 @@ class FormService {
     static async getFormId(req, res, next) {
         const { form_id } = req.query;
         const { user } = req;
-        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id });
+        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id }).populate('form_title.form_title_sub');
         return { form: form ? form : null };
     }
     static async getInfoFormNotification(req, res, next) {
@@ -101,8 +103,8 @@ class FormService {
         const formTitleSubQuery = { form_id: form_id };
         const options = { new: true, upsert: true };
         const deleteForm = await form_model_1.default.findOneAndDelete(formQuery, options);
-        const deleteFormTitleSub = await form_model_1.formTitleSubModel.findOneAndDelete(formTitleSubQuery, options);
-        const deleteFormAnswerMini = await formAnswer_model_1.formAnswerMiniModel.findOneAndDelete(formTitleSubQuery, options);
+        const deleteFormTitleSub = await form_title_model_1.formTitleSubModel.findOneAndDelete(formTitleSubQuery, options);
+        const deleteFormAnswerMini = await formAnswer_model_1.oneAnswer.findOneAndDelete(formTitleSubQuery, options);
         const deleteFormAnswer = await formAnswer_model_1.default.findOneAndDelete(formTitleSubQuery, options);
         const found_notification_user = { notification_user_id: user?._id };
         await notification_model_1.notificationModel.findOneAndDelete({ 'core.form_id': form_id.toString() });
@@ -161,13 +163,21 @@ class FormService {
     static async addSubTitleItem(req, res, next) {
         const { user } = req;
         const { form_id, type } = req.body;
-        const formTitle = await form_model_1.formTitleSubModel.create({ type, form_id: form_id });
-        //update
+        const core = (0, form_title_model_1.generateSubTitleType)({ type, form_id });
         const formQuery = { _id: form_id, form_owner: user?._id };
-        const formUpdate = { $push: { 'form_title.form_title_sub': formTitle } };
+        const formUpdate = { $push: { 'form_title.form_title_sub': core } };
         const formOptions = { new: true, upsert: true };
-        const newForm = await form_model_1.default.findOneAndUpdate(formQuery, formUpdate, formOptions);
+        const newForm = await form_model_1.default.findOneAndUpdate(formQuery, formUpdate, formOptions).populate('form_title.form_title_sub');
         return { form: newForm };
+    }
+    static async deleteSubTitleItem(req, res, next) {
+        const { user } = req;
+        const { form_id, title_sub_id } = req.query;
+        const formQuery = { _id: form_id, form_owner: user?._id, 'form_title.form_title_sub._id': title_sub_id };
+        const formUpdate = { $pull: { 'form_title.form_title_sub': { _id: title_sub_id } } };
+        const formOptions = { new: true, upsert: true };
+        const form = await form_model_1.default.findOneAndUpdate(formQuery, formUpdate, formOptions);
+        return { form: form };
     }
     static async uploadTitleImage(req, res, next) {
         const file = req.file;
@@ -175,43 +185,32 @@ class FormService {
         const { user } = req;
         if (!file)
             throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
-        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
-        if (!form)
-            throw new response_error_1.BadRequestError({ metadata: 'form_id không hợp lệ' });
+        const form = await (0, form_utils_1.foundForm)({ form_id, user_id: user?._id });
         const folder = `tally-form-project/users/${user?.id}/${form._id}/title/images`;
         const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
-        const titleSubItem = form.form_title?.form_title_sub.map((ft) => {
-            console.log(ft._id, titleSubId);
-            if (new mongoose_1.Types.ObjectId(ft._id).toString() === titleSubId) {
-                console.log(ft._id === titleSubId, titleSubId);
-                ft.value = result.secure_url;
-                ft.write = true;
-                return ft;
-            }
-            return ft;
-        });
-        const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
-        const formUpdateDoc = { $set: { 'form_title.form_title_sub': titleSubItem } };
-        const formOptions = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
-        return { form: formUpdate };
+        const core = (0, form_title_model_1.generateCoreImageObject)({ url: result.secure_url });
+        const newForm = await form_model_1.default.findOneAndUpdate({ _id: form_id, form_owner: user?._id, 'form_title.form_title_sub._id': titleSubId }, { $set: { 'form_title.form_title_sub.$.core': core } }, { new: true, upsert: true });
+        return { form: newForm };
     }
     static async updateTitleSubText(req, res, next) {
         const { user } = req;
         const { form_id, form_title_sub_content, form_title_sub_id } = req.body;
-        const formQueryDoc = { form_owner: user?._id, _id: new mongoose_1.Types.ObjectId(form_id), 'form_title.form_title_sub._id': form_title_sub_id };
-        const formUpdateDoc = {
-            $set: {
-                'form_title.form_title_sub.$.value': form_title_sub_content,
-                'form_title.form_title_sub.$.write': true
-            }
+        const form = await (0, form_utils_1.foundForm)({ form_id, user_id: user?._id });
+        const core = (0, form_title_model_1.generateCoreTextObject)({ value: form_title_sub_content });
+        const newForm = await form_model_1.default.findOneAndUpdate({ _id: form_id, form_owner: user?._id, 'form_title.form_title_sub._id': form_title_sub_id }, { $set: { 'form_title.form_title_sub.$.core': core } }, { new: true, upsert: true });
+        return { form: newForm };
+    }
+    static async updateSubTitleDescription(req, res, next) {
+        const { user } = req;
+        const { header_value, value, title_sub_id, form_id } = req.body;
+        const core = { header_value, value };
+        const form_query = { form_owner: user?._id, _id: form_id, 'form_title.form_title_sub._id': title_sub_id };
+        const form_update = {
+            $set: { 'form_title.form_title_sub.$.core': core }
         };
-        const formOptionDoc = { new: true, upsert: true };
-        const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptionDoc);
-        console.log({ formUpdateDoc: JSON.stringify(formUpdate) });
-        if (!formUpdate)
-            throw new response_error_1.BadRequestError({ metadata: 'update form failure' });
-        return { form: formUpdate };
+        const form_options = { new: true, upsert: true };
+        const newForm = await form_model_1.default.findOneAndUpdate(form_query, form_update, form_options);
+        return { form: newForm };
     }
     static async addInputToTitle(req, res, next) {
         // const { form } = req.body
@@ -262,7 +261,7 @@ class FormService {
         const { form } = req.body;
         const { user } = req;
         const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form._id), form_owner: user?._id };
-        const formUpdateDoc = { $set: { form_background_state: true } };
+        const formUpdateDoc = { $set: { form_background_state: true, form_background: { mode_show: 'cover' } } };
         const formOptions = { new: true, upsert: true };
         const formUpdate = await form_model_1.default.findOneAndUpdate(formQueryDoc, formUpdateDoc, formOptions);
         return { form: formUpdate };
@@ -273,6 +272,7 @@ class FormService {
         const { user } = req;
         if (!file)
             throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
+        const form = await (0, form_utils_1.foundForm)({ form_id, user_id: user?._id });
         const folder = `tally-form-project/users/${user?.id}/form_id/avatar`;
         const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
         const form_avatar = { form_avatar_url: result.secure_url, form_avatar_publicId: result.public_id };
@@ -285,10 +285,10 @@ class FormService {
     static async deleteAvatar(req, res, next) {
         const { form_id, mode } = req.body;
         const { user } = req;
-        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        const form = await (0, form_utils_1.foundForm)({ form_id, user_id: user?._id });
         if (mode === 'Image') {
-            if (foundForm && foundForm.form_avatar) {
-                const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_avatar.form_avatar_publicId);
+            if (form && form.form_avatar) {
+                const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(form.form_avatar.form_avatar_publicId);
             }
             const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
             const formUpdateDoc = { $unset: { form_avatar: 1 }, $set: { form_avatar_state: false } };
@@ -308,6 +308,7 @@ class FormService {
         const { user } = req;
         if (!file)
             throw new response_error_1.BadRequestError({ metadata: 'Missing File' });
+        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
         const folder = `tally-form-project/users/${user?.id}/form_id/cover`;
         const result = await (0, upload_cloudinary_1.default)(req?.file, folder);
         const form_cover = { form_background_iamge_url: result.secure_url, form_backround_image_publicId: result.public_id };
@@ -320,9 +321,9 @@ class FormService {
     static async deleteCover(req, res, next) {
         const { form_id } = req.body;
         const { user } = req;
-        const foundForm = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
-        if (foundForm && foundForm.form_background) {
-            const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(foundForm.form_background.form_backround_image_publicId);
+        const form = await form_model_1.default.findOne({ _id: new mongoose_1.Types.ObjectId(form_id) });
+        if (form && form.form_background) {
+            const deleteAvatar = await cloudinary_config_1.default.uploader.destroy(form.form_background.form_backround_image_publicId);
         }
         const formQueryDoc = { _id: new mongoose_1.Types.ObjectId(form_id), form_owner: user?._id };
         const formUpdateDoc = { $unset: { form_background: 1 }, $set: { form_background_state: false } };

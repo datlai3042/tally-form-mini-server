@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotFoundError = exports.ForbiddenError = exports.AuthFailedError = exports.BadRequestError = exports.ResponseError = void 0;
+exports.InternalError = exports.NotFoundError = exports.ForbiddenError = exports.AuthFailedError = exports.BadRequestError = exports.ResponseError = void 0;
 const statusCode_1 = __importDefault(require("./statusCode"));
 const reasonStatusCode_1 = __importDefault(require("./reasonStatusCode"));
 class ResponseError extends Error {
@@ -42,3 +42,9 @@ class NotFoundError extends ResponseError {
     }
 }
 exports.NotFoundError = NotFoundError;
+class InternalError extends ResponseError {
+    constructor({ code = statusCode_1.default.INTERNAL_SERVER_ERROR, message = reasonStatusCode_1.default.INTERNAL_SERVER_ERROR, metadata = '' }) {
+        super({ code, message, metadata });
+    }
+}
+exports.InternalError = InternalError;

@@ -33,11 +33,11 @@ class FormAnswerService {
     static async addAnswerForm(req, res, next) {
         const { formAnswer } = req.body;
         const found_form_origin = await form_model_1.default.findOne({ _id: formAnswer.form_id }).select('form_title form_avatar form_setting_default');
-        const formAnswerMini = await formAnswer_model_1.formAnswerMiniModel.create({ form_id: formAnswer.form_id, answers: formAnswer.answers });
+        const oneAnswerData = await formAnswer_model_1.oneAnswer.create({ form_id: formAnswer.form_id, answers: formAnswer.answers });
         const formAnswerQuery = { form_id: formAnswer.form_id, owner_id: formAnswer.form_owner };
-        const formAnswerUpdate = { $push: { reports: formAnswerMini } };
+        const formAnswerUpdate = { $push: { reports: oneAnswerData._id } };
         const formAnswerOption = { new: true, upsert: true };
-        const findFormOrigin = await formAnswer_model_1.default.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption);
+        const findFormOrigin = await formAnswer_model_1.default.findOneAndUpdate(formAnswerQuery, formAnswerUpdate, formAnswerOption).populate('reports');
         const socketOwnerForm = global._userSocket[findFormOrigin?.owner_id];
         const createNotification = await (0, notification_1.default)({
             user_id: findFormOrigin?.owner_id,
@@ -45,7 +45,7 @@ class FormAnswerService {
             core: {
                 message: `bạn đã nhận 1 phiếu trả lời`,
                 form_id: findFormOrigin?.form_id,
-                form_answer_id: formAnswerMini._id
+                form_answer_id: oneAnswerData._id
             }
         });
         createNotification.notifications.notifications = createNotification.notifications?.notifications.sort((a, b) => b.create_time.getTime() - a.create_time.getTime());
@@ -66,7 +66,7 @@ class FormAnswerService {
         const formAnswerQuery = { form_id: form_id, owner_id: user?._id };
         // const formAnswerUpdate = { $push: { reports: { form_id: formAnswer.form_id, answers: formAnswer.answers } } }
         // const formAnswerOption = { new: true, upsert: true }
-        const findFormOrigin = await formAnswer_model_1.default.findOne(formAnswerQuery);
+        const findFormOrigin = await formAnswer_model_1.default.findOne(formAnswerQuery).populate('reports');
         return { formAnswer: findFormOrigin };
     }
 }

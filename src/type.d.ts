@@ -251,6 +251,7 @@ namespace Form {
       namespace FormAnswer {
             type InputFormRequire = { _id?: string; title?: string; checkRequire: boolean }
             type InputFormData = {
+                  one_answer_id: Types.ObjectId
                   _id: Types.ObjectId | string
                   title: string
                   mode: 'Require' | 'Optional'
@@ -262,6 +263,7 @@ namespace Form {
                   form_id: Types.ObjectId
                   answers: InputFormData[]
                   create_time: Date
+                  form_answer_core_id: Types.ObjectId
             }
 
             type formAnswerOrigin = {
@@ -269,6 +271,48 @@ namespace Form {
                   owner_id: Types.ObjectId
                   reports: TFormAnswer[]
             }
+      }
+
+      namespace FormTitle {
+            namespace Common {
+                  type Type = 'Text' | 'Image' | 'FullDescription'
+                  type Core = Text.Core['core'] | Image.Core['core'] | FullDescription.Core['core']
+                  type FormTilteCommon = {
+                        _id: Types.ObjectId
+                        type: Type
+                        form_id: Types.ObjectId
+                  }
+            }
+
+            namespace Text {
+                  type Core = Common.FormTilteCommon & {
+                        type: 'Text'
+                        core: {
+                              value: string
+                        }
+                  }
+            }
+
+            namespace Image {
+                  type Core = Common.FormTilteCommon & {
+                        type: 'Image'
+                        core: {
+                              url: string
+                        }
+                  }
+            }
+
+            namespace FullDescription {
+                  type Core = Common.FormTilteCommon & {
+                        type: 'FullDescription'
+                        core: {
+                              header_value: string
+                              value: string
+                        }
+                  }
+            }
+
+            type FormTitleBase = Text.Core | Image.Core | FullDescription.Core
       }
 }
 

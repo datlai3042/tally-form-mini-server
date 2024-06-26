@@ -12,7 +12,7 @@ class FormInputService {
             const { user } = req
             const { form, title } = req.body
 
-            const newInput = await inputModel.create({ core: { setting: inputSettingText }, type: 'TEXT' })
+            const newInput = { core: { setting: inputSettingText }, type: 'TEXT' }
 
             const formTitle = { ...form.form_title, form_title_value: title }
 
@@ -62,15 +62,11 @@ class FormInputService {
             const { user } = req
             const { form, input_id, input_id_setting } = req.body
 
-            const inputItem = await inputModel.findOne({ _id: new Types.ObjectId(input_id) })
-            inputItem!.core.setting = input_id_setting
-            const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': inputItem?._id }
-
-            console.log({ inputItem })
+            const formQueryDoc = { form_owner: user?._id, _id: form._id, 'form_inputs._id': input_id }
 
             const formUpdateDoc = {
                   $set: {
-                        'form_inputs.$.core': inputItem!.core
+                        'form_inputs.$.core.setting': input_id_setting
                   }
             }
             const formOptionDoc = { new: true, upsert: true }
@@ -128,11 +124,20 @@ class FormInputService {
             const { user } = req
             const { form, inputItem, type } = req.body
             const core = generateInputSettingWithType(type, form, inputItem)
+            const tempObject = {
+                  type,
+                  core
+            }
 
-            const updateInput = await inputModel.findOneAndUpdate({ _id: inputItem._id }, { $set: { core: core } }, { new: true, upsert: true })
+            console.log({ core })
 
-            const foundForm = { _id: form._id, form_owner: user?._id, 'form_inputs._id': updateInput?._id }
-            const updateForm = { 'form_inputs.$.core': updateInput?.toObject().core, 'form_inputs.$.type': type }
+            const foundForm = { _id: form._id, form_owner: user?._id, form_inputs: { $elemMatch: { _id: inputItem._id } } }
+            const updateForm = {
+                  $set: {
+                        'form_inputs.$.core': core,
+                        'form_inputs.$.type': type
+                  }
+            }
             const options = { new: true, upsert: true }
 
             const newForm = await formModel.findOneAndUpdate(foundForm, updateForm, options)

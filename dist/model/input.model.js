@@ -6,7 +6,7 @@ exports.inputCoreSchema = new mongoose_1.Schema({
     type: { type: String, default: 'EMAIL' },
     input_title: { type: String },
     core: { type: mongoose_1.Schema.Types.Mixed, require: true }
-}, { collection: 'inputcores', timestamps: true });
+}, { collection: 'InputCore' });
 exports.inputModel = (0, mongoose_1.model)('InputCore', exports.inputCoreSchema);
 exports.coreInputText = new mongoose_1.Schema({
     inputCore: { type: mongoose_1.Schema.Types.ObjectId, ref: 'InputCore' },

@@ -7,7 +7,7 @@ export const inputCoreSchema = new Schema<InputCore.InputCommon & { type: InputC
             input_title: { type: String },
             core: { type: Schema.Types.Mixed, require: true }
       },
-      { collection: 'inputcores', timestamps: true }
+      { collection: 'InputCore' }
 )
 
 export const inputModel = model('InputCore', inputCoreSchema)

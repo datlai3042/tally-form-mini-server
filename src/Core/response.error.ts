@@ -38,3 +38,9 @@ export class NotFoundError extends ResponseError {
             super({ code, message, metadata })
       }
 }
+
+export class InternalError extends ResponseError {
+      constructor({ code = statusCode.INTERNAL_SERVER_ERROR, message = reasonCode.INTERNAL_SERVER_ERROR, metadata = '' }: Http.ResError) {
+            super({ code, message, metadata })
+      }
+}

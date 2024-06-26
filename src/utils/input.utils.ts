@@ -10,6 +10,7 @@ import { Core, Form, InputCore } from '~/type'
 
 export const generateInputSettingWithType = (type: InputCore.InputForm['type'], form: Form.FormCore, inputItem: InputCore.InputForm) => {
       let core = {} as Core.CoreCommon
+
       switch (type) {
             case 'TEXT': {
                   const setting_default = generateInputSettingDefault(form, inputItem)

@@ -65,8 +65,14 @@ class FormController {
     static async addSubTitleItem(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.addSubTitleItem(req, res, next) }).send(res);
     }
+    static async deleteSubTitleItem(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.deleteSubTitleItem(req, res, next) }).send(res);
+    }
     static async updateTitleSubText(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.updateTitleSubText(req, res, next) }).send(res);
+    }
+    static async updateSubTitleDescription(req, res, next) {
+        return new response_success_1.OK({ metadata: await form_service_1.default.updateSubTitleDescription(req, res, next) }).send(res);
     }
     static async addInputToTitle(req, res, next) {
         return new response_success_1.OK({ metadata: await form_service_1.default.addInputToTitle(req, res, next) }).send(res);

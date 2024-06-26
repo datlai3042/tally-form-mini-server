@@ -34,6 +34,8 @@ routerForm.post('/add-input', (0, asyncHandler_1.asyncHandler)(form_controller_1
 routerForm.post('/add-input-to-title', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputAndSetTitle));
 routerForm.post('/add-input-to-enter', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addInputToEnter));
 routerForm.post('/add-sub-title-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.addSubTitleItem));
+routerForm.delete('/delete-sub-title-item', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.deleteSubTitleItem));
+routerForm.post('/update-sub-title-description', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateSubTitleDescription));
 routerForm.post('/update-sub-title-text', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.updateTitleSubText));
 routerForm.post('/upload-sub-title-image', cloudinary_config_1.upload.single('file'), (0, asyncHandler_1.asyncHandler)(form_controller_1.default.uploadTitleImage));
 routerForm.post('/set-title-form', (0, asyncHandler_1.asyncHandler)(form_controller_1.default.setTitleForm));
